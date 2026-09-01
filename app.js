@@ -3,18 +3,32 @@
 const API_URL = "https://script.google.com/macros/s/AKfycbwWIQp6o5xg2trNQL9_2O12jczX9QNWBGdy8-DmsmsRgtd3QJelr5Gte5Rc2QXXfqbZ/exec"; 
 // =========================================================================
 
-// CORE API FETCH (VERSI PALING STABIL)
+// CORE API FETCH (THE ULTIMATE FORM-DATA HACK DIKEMBALIKAN)
 async function fetchAPI(action, payload = {}) {
   payload.action = action;
+  
+  // MENGGUNAKAN FORM DATA HACK AGAR LOLOS CORS GOOGLE
+  const urlEncodedData = new URLSearchParams();
+  urlEncodedData.append('data', JSON.stringify(payload));
+
   try {
     const response = await fetch(API_URL, {
-      method: 'POST',
-      body: JSON.stringify(payload),
+      method: 'POST', 
+      body: urlEncodedData, 
       redirect: 'follow' 
     });
     
     if (!response.ok) throw new Error("HTTP Status " + response.status);
-    return await response.json();
+    
+    // Mencegah crash jika Google membalas dengan halaman HTML (misal: halaman login)
+    const textResponse = await response.text();
+    try {
+      return JSON.parse(textResponse);
+    } catch(e) {
+      console.error("Response bukan JSON:", textResponse);
+      throw new Error("Server membalas dengan format salah. Cek setingan Deployment Google.");
+    }
+    
   } catch (err) {
     console.error("Fetch API Error: ", err);
     throw new Error("Koneksi ke server gagal.");
@@ -39,10 +53,13 @@ async function loadInitialSettings() {
       applySettingsToUI();
       const btnLog = document.getElementById('btnLogin');
       btnLog.innerText = "Masuk Sistem"; btnLog.disabled = false;
+    } else {
+      document.getElementById('btnLogin').innerText = "Gagal Konek Server";
+      showToast("Gagal mengambil pengaturan dari server.", true);
     }
   } catch (err) {
     document.getElementById('btnLogin').innerText = "Gagal Konek Server";
-    showToast("Gagal mengambil pengaturan. Pastikan link API benar.", true);
+    showToast(err.message || "Gagal mengambil pengaturan. Pastikan link API benar.", true);
   }
 }
 
@@ -303,7 +320,7 @@ async function prosesBatchImport() {
 
 async function hapusSiswa(id) {
   if(!confirm('Hapus siswa ID ' + id + '?')) return;
-  try { const res = await fetchAPI('delSiswa', { id: id }); if(res.success) { showToast(res.message); loadDataSiswa(); } } catch(e) {}
+  try { const res = await fetchAPI('delSiswa', { id }); if(res.success) { showToast(res.message); loadDataSiswa(); } } catch(e) {}
 }
 
 async function renderKartuQR() {
