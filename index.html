@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aplikasi Presensi</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div id="authScreen">
+    <div class="glass-card auth-card">
+      <img src="" id="loginLogo" class="logo-sekolah hidden" alt="Logo">
+      <h2 style="margin-bottom: 5px;" class="app-title-display">Memuat Data...</h2>
+      <p class="text-muted" style="margin-bottom: 25px;">Sistem Presensi QR Terpadu</p>
+      <form id="loginForm" onsubmit="event.preventDefault(); handleLogin();">
+        <div class="form-group" style="text-align: left;">
+          <label>Username</label>
+          <input type="text" id="username" placeholder="Masukkan username" required>
+        </div>
+        <div class="form-group" style="text-align: left; margin-bottom: 25px;">
+          <label>Password</label>
+          <input type="password" id="password" placeholder="••••••••" required>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%;" id="btnLogin" disabled>Menghubungkan Server...</button>
+      </form>
+      <div style="margin-top: 25px; font-size: 0.85rem; color: var(--text-muted);">
+        Powered by <a href="https://fb.me/ubaidillahblood" target="_blank" style="color: var(--neon-green); text-decoration: none; font-weight: 600; letter-spacing: 0.5px;">UbayLabs</a>
+      </div>
+    </div>
+  </div>
+
+  <div id="mainApp" class="hidden">
+    <nav class="navbar">
+      <div class="brand">
+        <img src="" id="navLogo" class="hidden" alt="Logo">
+        <span class="app-title-display">Aplikasi Presensi</span>
+      </div>
+      <div class="user-profile">
+        <i class="fas fa-user-circle"></i> <span id="lblUser">User</span> (<span id="lblRole">Role</span>)
+        <a href="#" onclick="logout()" style="color: var(--danger); margin-left: 10px; text-decoration: none;"><i class="fas fa-power-off"></i></a>
+      </div>
+    </nav>
+    
+    <div class="container">
+      <div class="nav-tabs" id="menuTabs"></div>
+
+      <div id="viewScan" class="view-section">
+        <div class="glass-card">
+          <div class="flex-between" style="margin-bottom: 15px;">
+            <h3><i class="fas fa-camera text-neon"></i> Mode Scanner</h3>
+            <select id="kameraSelect" style="width: auto; padding: 8px; border-radius: 5px;">
+              <option value="environment">Kamera Belakang</option>
+              <option value="user">Kamera Depan</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Pilih Kegiatan</label>
+            <select id="kegiatanSelect" onchange="toggleCustomKegiatan()">
+              <option value="Subuh Berjama'ah">Subuh Berjama'ah</option>
+              <option value="Dzuhur Berjama'ah">Dzuhur Berjama'ah</option>
+              <option value="Maghrib Mengaji">Maghrib Mengaji</option>
+              <option value="Mengaji Sore">Mengaji Sore</option>
+              <option value="CUSTOM">Lainnya (Ketik Manual)...</option>
+            </select>
+            <input type="text" id="kegiatanCustom" class="hidden" placeholder="Ketik nama kegiatan disini..." style="margin-top: 10px;">
+          </div>
+          <div id="reader"></div>
+          <div id="scanStatus" class="scan-status hidden"></div>
+          <div class="flex-between">
+            <button class="btn btn-primary" id="btnStartScan" onclick="startScanner()"><i class="fas fa-play"></i> Mulai Scan</button>
+            <button class="btn btn-danger hidden" id="btnStopScan" onclick="stopScanner()"><i class="fas fa-stop"></i> Hentikan</button>
+          </div>
+        </div>
+        <div class="glass-card">
+          <h3><i class="fas fa-list"></i> Live Scan Log (<span id="liveCounter">0</span>)</h3>
+          <div class="table-responsive">
+            <table id="tableLiveScan">
+              <thead><tr><th>Waktu</th><th>Nama Siswa</th><th>Kelas</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div id="viewDataSiswa" class="view-section hidden">
+        <div class="glass-card">
+          <h3><i class="fas fa-users text-neon"></i> Manajemen Data Siswa</h3>
+          <div class="flex-between" style="margin-top: 15px; margin-bottom: 15px; gap: 10px;">
+            <input type="text" id="searchSiswa" placeholder="Cari Nama/Kelas..." onkeyup="filterTabelSiswa()">
+            <button class="btn btn-outline" onclick="toggleBatchPaste()"><i class="fas fa-paste"></i> Batch Import</button>
+          </div>
+          <div id="batchArea" class="hidden" style="margin-bottom: 20px; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px;">
+            <label class="text-neon">Paste Data Excel (Nama [Tab] Kelas)</label>
+            <textarea id="pasteData" rows="5"></textarea>
+            <button class="btn btn-primary" onclick="prosesBatchImport()" style="margin-top: 10px;">Simpan Data Batch</button>
+          </div>
+          <div class="table-responsive">
+            <table id="tableSiswa">
+              <thead><tr><th>ID</th><th>Nama Siswa</th><th>Kelas</th><th>Aksi</th></tr></thead>
+              <tbody><tr><td colspan="4" style="text-align: center;">Memuat data...</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div id="viewCetakKartu" class="view-section hidden">
+        <div class="glass-card">
+          <div class="flex-between">
+            <h3><i class="fas fa-id-badge text-neon"></i> Cetak Kartu QR</h3>
+            <div>
+              <select id="filterKelasKartu" style="width: auto; display: inline-block; margin-right: 10px;">
+                <option value="ALL">Semua Kelas</option>
+                <option value="10-A">10-A</option>
+                <option value="10-B">10-B</option>
+              </select>
+              <button class="btn btn-primary" onclick="window.print()"><i class="fas fa-print"></i> Print (Kertas)</button>
+            </div>
+          </div>
+          <div id="printArea" class="grid-cards" style="margin-top:20px;"></div>
+        </div>
+      </div>
+
+      <div id="viewRekap" class="view-section hidden">
+        <div class="glass-card">
+          <div class="flex-between">
+            <h3><i class="fas fa-file-alt text-neon"></i> Log Rekap Presensi</h3>
+            <div style="display: flex; gap: 10px;">
+              <button class="btn btn-outline" onclick="loadRekapData()"><i class="fas fa-sync-alt"></i> Refresh</button>
+              <button class="btn btn-primary" onclick="downloadPDFRekap()"><i class="fas fa-file-pdf"></i> Download PDF</button>
+            </div>
+          </div>
+          <div class="flex-between" style="margin-top: 15px; margin-bottom: 15px; gap: 10px;">
+            <input type="date" id="filterTanggal" onchange="filterTabelRekap()">
+            <select id="filterKegiatanRekap" onchange="filterTabelRekap()">
+              <option value="ALL">Semua Kegiatan</option>
+              <option value="Subuh Berjama'ah">Subuh Berjama'ah</option>
+              <option value="Dzuhur Berjama'ah">Dzuhur Berjama'ah</option>
+              <option value="Maghrib Mengaji">Maghrib Mengaji</option>
+              <option value="Mengaji Sore">Mengaji Sore</option>
+            </select>
+          </div>
+          <div class="table-responsive">
+            <table id="tableRekap">
+              <thead><tr><th>Tanggal</th><th>Waktu</th><th>Siswa</th><th>Kelas</th><th>Kegiatan</th><th>Pengawas</th></tr></thead>
+              <tbody><tr><td colspan="6" style="text-align: center;">Memuat data...</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div id="viewSettings" class="view-section hidden">
+        <div class="glass-card">
+          <h3><i class="fas fa-cogs text-neon"></i> Pengaturan Aplikasi</h3>
+          <p class="text-muted" style="margin-bottom: 15px;">Atur kustomisasi nama dan logo aplikasi Anda disini.</p>
+          
+          <div class="form-group">
+            <label>Nama Aplikasi</label>
+            <input type="text" id="setAppName" placeholder="Misal: Absensi SDN 2 Cijemit">
+          </div>
+          <div class="form-group">
+            <label>Gunakan Logo?</label>
+            <select id="setUseLogo" onchange="toggleLogoInput()">
+              <option value="true">Ya, Pakai Logo</option>
+              <option value="false">Tidak, Teks Saja</option>
+            </select>
+          </div>
+          <div class="form-group" id="logoUrlGroup">
+            <label>Link Gambar Logo (URL Direct / Google Drive ID)</label>
+            <input type="text" id="setLogoUrl" placeholder="https://domain.com/logo.png">
+            <small class="text-muted">Untuk Google Drive, pastikan file di-set 'Siapa saja memiliki link'.</small>
+          </div>
+          <button class="btn btn-primary" onclick="simpanPengaturan()" id="btnSaveSet"><i class="fas fa-save"></i> Simpan Pengaturan</button>
+        </div>
+
+        <div class="glass-card">
+          <div class="flex-between">
+            <h3><i class="fas fa-user-shield text-neon"></i> Manajemen Akun</h3>
+            <button class="btn btn-outline" onclick="document.getElementById('formAkunBaru').classList.toggle('hidden')"><i class="fas fa-plus"></i> Tambah Akun</button>
+          </div>
+          
+          <div id="formAkunBaru" class="hidden" style="margin-top: 20px; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px;">
+            <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:10px;">
+              <div style="flex:1; min-width: 200px;"><label>Nama Lengkap</label><input type="text" id="akNama" placeholder="Nama Guru"></div>
+              <div style="flex:1; min-width: 200px;"><label>Username</label><input type="text" id="akUser" placeholder="Username Login"></div>
+            </div>
+            <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:10px;">
+              <div style="flex:1; min-width: 200px;"><label>Password</label><input type="text" id="akPass" placeholder="Password Login"></div>
+              <div style="flex:1; min-width: 200px;">
+                <label>Hak Akses (Role)</label>
+                <select id="akRole">
+                  <option value="Pengawas">Pengawas (Hanya Absen)</option>
+                  <option value="Admin">Admin (Bisa Edit Data)</option>
+                </select>
+              </div>
+            </div>
+            <button class="btn btn-primary" onclick="tambahAkunBaru()" id="btnTambahAkun">Simpan Akun Baru</button>
+          </div>
+
+          <div class="table-responsive" style="margin-top: 20px;">
+            <table id="tableUsers">
+              <thead><tr><th>ID</th><th>Nama</th><th>Username</th><th>Role</th><th>Aksi</th></tr></thead>
+              <tbody><tr><td colspan="5" style="text-align: center;">Memuat data...</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast"><i class="fas fa-info-circle"></i> <span id="toastMsg">Pesan</span></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
