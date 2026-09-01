@@ -1,16 +1,18 @@
-// URL SERVER APPS SCRIPT ANDA
+// =========================================================================
+// ⚠️ MASUKKAN URL WEB APP GOOGLE APPS SCRIPT ANDA DI SINI ⚠️
 const API_URL = "https://script.google.com/macros/s/AKfycbwWIQp6o5xg2trNQL9_2O12jczX9QNWBGdy8-DmsmsRgtd3QJelr5Gte5Rc2QXXfqbZ/exec"; 
+// =========================================================================
 
-// CORE API FETCH
+// CORE API FETCH (VERSI PALING STABIL)
 async function fetchAPI(action, payload = {}) {
   payload.action = action;
-  const urlEncodedData = new URLSearchParams();
-  urlEncodedData.append('data', JSON.stringify(payload));
-
   try {
     const response = await fetch(API_URL, {
-      method: 'POST', body: urlEncodedData, redirect: 'follow' 
+      method: 'POST',
+      body: JSON.stringify(payload),
+      redirect: 'follow' 
     });
+    
     if (!response.ok) throw new Error("HTTP Status " + response.status);
     return await response.json();
   } catch (err) {
@@ -40,14 +42,13 @@ async function loadInitialSettings() {
     }
   } catch (err) {
     document.getElementById('btnLogin').innerText = "Gagal Konek Server";
-    showToast("Gagal mengambil pengaturan logo.", true);
+    showToast("Gagal mengambil pengaturan. Pastikan link API benar.", true);
   }
 }
 
 function applySettingsToUI() {
   document.title = appSettings.appName;
   document.querySelectorAll('.app-title-display').forEach(el => el.innerText = appSettings.appName);
-  
   const loginLogo = document.getElementById('loginLogo');
   const navLogo = document.getElementById('navLogo');
   
@@ -145,7 +146,6 @@ function startScanner() {
   statusBox.innerHTML = 'Meminta izin kamera...';
 
   const selectedCam = document.getElementById('kameraSelect').value; 
-
   html5QrcodeScanner = new Html5Qrcode("reader");
   const config = { fps: 10, qrbox: { width: 250, height: 250 } };
   
