@@ -3,11 +3,10 @@
 const API_URL = "https://script.google.com/macros/s/AKfycbwWIQp6o5xg2trNQL9_2O12jczX9QNWBGdy8-DmsmsRgtd3QJelr5Gte5Rc2QXXfqbZ/exec"; 
 // =========================================================================
 
-// CORE API FETCH (THE ULTIMATE FORM-DATA HACK DIKEMBALIKAN)
+// CORE API FETCH DENGAN ERROR HANDLING CANGGIH
 async function fetchAPI(action, payload = {}) {
   payload.action = action;
   
-  // MENGGUNAKAN FORM DATA HACK AGAR LOLOS CORS GOOGLE
   const urlEncodedData = new URLSearchParams();
   urlEncodedData.append('data', JSON.stringify(payload));
 
@@ -20,18 +19,24 @@ async function fetchAPI(action, payload = {}) {
     
     if (!response.ok) throw new Error("HTTP Status " + response.status);
     
-    // Mencegah crash jika Google membalas dengan halaman HTML (misal: halaman login)
     const textResponse = await response.text();
+    
+    // Deteksi jika Google merespons dengan halaman HTML (Biasanya karena salah seting Akses)
+    if (textResponse.trim().startsWith('<') || textResponse.includes('<!DOCTYPE html>')) {
+        console.error("Server merespons dengan HTML, bukan JSON.");
+        throw new Error("ERROR AKSES: Pastikan Deployment 'Who has access' diatur ke 'Anyone' (Siapa saja).");
+    }
+
     try {
       return JSON.parse(textResponse);
     } catch(e) {
-      console.error("Response bukan JSON:", textResponse);
-      throw new Error("Server membalas dengan format salah. Cek setingan Deployment Google.");
+      throw new Error("Format balasan server rusak.");
     }
     
   } catch (err) {
     console.error("Fetch API Error: ", err);
-    throw new Error("Koneksi ke server gagal.");
+    // Tampilkan pesan error spesifik ke pengguna
+    throw new Error(err.message.includes("ERROR AKSES") ? err.message : "Koneksi ke server gagal.");
   }
 }
 
@@ -59,7 +64,7 @@ async function loadInitialSettings() {
     }
   } catch (err) {
     document.getElementById('btnLogin').innerText = "Gagal Konek Server";
-    showToast(err.message || "Gagal mengambil pengaturan. Pastikan link API benar.", true);
+    showToast(err.message, true); // Menampilkan pesan error spesifik
   }
 }
 
