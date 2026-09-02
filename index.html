@@ -21,8 +21,8 @@
   <!-- LOGIN SCREEN -->
   <div id="authScreen">
     <div class="glass-card auth-card">
-      <!-- PERBAIKAN: Tambahan onerror fallback image -->
-      <img src="" id="loginLogo" class="logo-sekolah hidden" alt="Logo" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=SDN&background=00ffaa&color=000';">
+      <!-- PERBAIKAN: Logo Aplikasi di Halaman Login -->
+      <img src="https://i.ibb.co.com/jPVTMGCK/logo-aplikasi.png" id="loginLogo" class="logo-sekolah" alt="Logo Aplikasi">
       
       <h2 style="margin-bottom: 5px;" class="app-title-display">Memuat Data...</h2>
       <p class="text-muted" style="margin-bottom: 25px;">Sistem Presensi QR Terpadu</p>
@@ -50,8 +50,8 @@
   <div id="mainApp" class="hidden">
     <nav class="navbar">
       <div class="brand">
-        <!-- PERBAIKAN: Tambahan onerror fallback image -->
-        <img src="" id="navLogo" class="hidden" alt="Logo" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=SDN&background=00ffaa&color=000';">
+        <!-- PERBAIKAN: Logo Aplikasi di Navbar -->
+        <img src="https://i.ibb.co.com/jPVTMGCK/logo-aplikasi.png" id="navLogo" alt="Logo Aplikasi">
         <span class="app-title-display">Aplikasi Presensi</span>
       </div>
       <div class="user-profile">
@@ -175,25 +175,13 @@
       <div id="viewSettings" class="view-section hidden">
         <div class="glass-card">
           <h3><i class="fas fa-cogs text-neon"></i> Pengaturan Aplikasi</h3>
-          <p class="text-muted" style="margin-bottom: 15px;">Atur kustomisasi nama dan logo aplikasi Anda disini.</p>
+          <p class="text-muted" style="margin-bottom: 15px;">Ubah nama aplikasi yang tampil di atas halaman.</p>
           
           <div class="form-group">
             <label>Nama Aplikasi</label>
             <input type="text" id="setAppName" placeholder="Misal: Absensi SDN 2 Cijemit">
           </div>
-          <div class="form-group">
-            <label>Gunakan Logo?</label>
-            <select id="setUseLogo" onchange="toggleLogoInput()">
-              <option value="true">Ya, Pakai Logo</option>
-              <option value="false">Tidak, Teks Saja</option>
-            </select>
-          </div>
-          <div class="form-group" id="logoUrlGroup">
-            <label>Link Gambar Logo (Gunakan ImgBB / Postimages)</label>
-            <input type="text" id="setLogoUrl" placeholder="https://i.ibb.co/contoh/logo.png">
-            <small class="text-muted text-warning" style="color: var(--warning);">Hindari link Google Drive karena sering diblokir oleh sistem keamanan browser HP.</small>
-          </div>
-          <button class="btn btn-primary" onclick="simpanPengaturan()" id="btnSaveSet"><i class="fas fa-save"></i> Simpan Pengaturan</button>
+          <button class="btn btn-primary" onclick="simpanPengaturan()" id="btnSaveSet"><i class="fas fa-save"></i> Simpan Nama Aplikasi</button>
         </div>
 
         <div class="glass-card">
