@@ -1,6 +1,6 @@
 // =========================================================================
 // ⚠️ MASUKKAN URL WEB APP GOOGLE APPS SCRIPT ANDA DI SINI ⚠️
-const API_URL = "https://script.google.com/macros/s/AKfycbwWIQp6o5xg2trNQL9_2O12jczX9QNWBGdy8-DmsmsRgtd3QJelr5Gte5Rc2QXXfqbZ/exec"; 
+const API_URL = "https://script.google.com/macros/s/AKfycby6Y90YFPeIoTFYNtuhyr9MJCmKTMIS4SH2nmXK8LBnCCLbHs4J9Ry5po0t2l7pYFl8/exec"; 
 // =========================================================================
 
 // CORE API FETCH DENGAN ERROR HANDLING CANGGIH
