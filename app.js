@@ -21,7 +21,6 @@ async function fetchAPI(action, payload = {}) {
     
     const textResponse = await response.text();
     
-    // Deteksi jika Google merespons dengan halaman HTML (Biasanya karena salah seting Akses)
     if (textResponse.trim().startsWith('<') || textResponse.includes('<!DOCTYPE html>')) {
         console.error("Server merespons dengan HTML, bukan JSON.");
         throw new Error("ERROR AKSES: Pastikan Deployment 'Who has access' diatur ke 'Anyone' (Siapa saja).");
@@ -35,14 +34,13 @@ async function fetchAPI(action, payload = {}) {
     
   } catch (err) {
     console.error("Fetch API Error: ", err);
-    // Tampilkan pesan error spesifik ke pengguna
     throw new Error(err.message.includes("ERROR AKSES") ? err.message : "Koneksi ke server gagal.");
   }
 }
 
 // STATE MANAGEMENT
 let currentUser = null; let html5QrcodeScanner = null; let isScanning = false; let localScanCount = 0;
-let appSettings = { useLogo: 'true', logoUrl: '', appName: 'Aplikasi Presensi' };
+let appSettings = { appName: 'Aplikasi Presensi' }; 
 
 window.onload = async () => {
   await loadInitialSettings();
@@ -64,34 +62,14 @@ async function loadInitialSettings() {
     }
   } catch (err) {
     document.getElementById('btnLogin').innerText = "Gagal Konek Server";
-    showToast(err.message, true); // Menampilkan pesan error spesifik
+    showToast(err.message, true); 
   }
 }
 
 function applySettingsToUI() {
   document.title = appSettings.appName;
   document.querySelectorAll('.app-title-display').forEach(el => el.innerText = appSettings.appName);
-  const loginLogo = document.getElementById('loginLogo');
-  const navLogo = document.getElementById('navLogo');
-  
-  if(appSettings.useLogo === 'true' || appSettings.useLogo === true) {
-    if(appSettings.logoUrl) {
-      loginLogo.src = appSettings.logoUrl; navLogo.src = appSettings.logoUrl;
-      loginLogo.classList.remove('hidden'); navLogo.classList.remove('hidden');
-    }
-  } else {
-    loginLogo.classList.add('hidden'); navLogo.classList.add('hidden');
-  }
-
   document.getElementById('setAppName').value = appSettings.appName;
-  document.getElementById('setUseLogo').value = appSettings.useLogo.toString();
-  document.getElementById('setLogoUrl').value = appSettings.logoUrl;
-  toggleLogoInput();
-}
-
-function toggleLogoInput() {
-  const isUse = document.getElementById('setUseLogo').value === 'true';
-  document.getElementById('logoUrlGroup').style.display = isUse ? 'block' : 'none';
 }
 
 function showToast(msg, isError = false) {
@@ -230,17 +208,15 @@ function appendLiveScanTable(data) {
 
 async function simpanPengaturan() {
   const btn = document.getElementById('btnSaveSet');
-  const useLogo = document.getElementById('setUseLogo').value;
-  const logoUrl = document.getElementById('setLogoUrl').value;
   const appName = document.getElementById('setAppName').value;
 
   btn.innerHTML = '<span class="loader"></span> Menyimpan...';
   try {
-    const res = await fetchAPI('saveSettings', { useLogo, logoUrl, appName });
-    btn.innerHTML = '<i class="fas fa-save"></i> Simpan Pengaturan';
+    const res = await fetchAPI('saveSettings', { useLogo: 'true', logoUrl: '', appName: appName });
+    btn.innerHTML = '<i class="fas fa-save"></i> Simpan Nama Aplikasi';
     if(res.success) { showToast(res.message); loadInitialSettings(); } 
     else showToast("Gagal menyimpan.", true);
-  } catch(e) { btn.innerHTML = '<i class="fas fa-save"></i> Simpan Pengaturan'; showToast("Error koneksi.", true); }
+  } catch(e) { btn.innerHTML = '<i class="fas fa-save"></i> Simpan Nama Aplikasi'; showToast("Error koneksi.", true); }
 }
 
 async function loadDataUsers() {
@@ -334,6 +310,7 @@ async function renderKartuQR() {
   } else generateCardsDOM();
 }
 
+// PERBAIKAN: Logo Sekolah di Kartu QR
 function generateCardsDOM() {
   const area = document.getElementById('printArea');
   const filterKelas = document.getElementById('filterKelasKartu') ? document.getElementById('filterKelasKartu').value : 'ALL';
@@ -344,18 +321,14 @@ function generateCardsDOM() {
     area.innerHTML = '<p class="text-muted">Tidak ada data untuk dicetak.</p>'; return; 
   }
 
-  const logoToUse = (appSettings.useLogo === 'true' && appSettings.logoUrl) ? appSettings.logoUrl : '';
+  // Menggunakan logo sekolah khusus untuk kartu ID
+  const logoToUse = "https://i.ibb.co.com/Qjj8Rxtr/logo-sekolah.png";
 
   filteredData.forEach(item => {
     const card = document.createElement('div'); 
     card.className = 'qr-id-card';
     
-    let headerHTML = '';
-    if (logoToUse) {
-      headerHTML = `<img src="${logoToUse}" class="card-logo" alt="Logo">`;
-    } else {
-      headerHTML = `<div style="font-weight:bold; font-size:0.8rem; margin-bottom:5px;">${appSettings.appName}</div>`;
-    }
+    let headerHTML = `<img src="${logoToUse}" class="card-logo" alt="Logo">`;
     
     const textHTML = `
       ${headerHTML}
