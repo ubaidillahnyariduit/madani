@@ -53,6 +53,7 @@ let currentRekapMode = 'harian'; // 'harian' | 'bulanan'
 
 window.onload = async () => {
     initDateControls();
+    populateDropdowns();
     await loadInitialSettings();
     const savedSession = sessionStorage.getItem('zettbotUser');
     if (savedSession) {
@@ -187,6 +188,7 @@ function initApp() {
     }
     
     document.getElementById('menuTabs').innerHTML = htmlMenu;
+    populateDropdowns();
     switchTab('viewScan', document.getElementById('menuTabs').firstElementChild);
     loadFilterOptions();
     updateDashboardStats();
