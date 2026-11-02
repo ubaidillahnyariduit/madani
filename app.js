@@ -48,7 +48,7 @@ let appSettings = { appName: 'Aplikasi Presensi Santri' };
 // IN-MEMORY CACHE
 let dataSiswaCache = [];
 let rekapCache = [];
-let filterOptionsCache = { kelas: [], tempat: [], pengawas: [], kegiatan: [] };
+let filterOptionsCache = { kelas: [], pengawas: [], kegiatan: [] };
 let currentRekapMode = 'harian'; // 'harian' | 'bulanan'
 
 window.onload = async () => {
@@ -63,13 +63,11 @@ window.onload = async () => {
 
 function initDateControls() {
     const now = new Date();
-    // Default Tanggal Harian
     const tzOffset = now.getTimezoneOffset() * 60000;
     const todayStr = (new Date(now - tzOffset)).toISOString().slice(0, 10);
     const filterTgl = document.getElementById('filterTanggal');
     if (filterTgl) filterTgl.value = todayStr;
 
-    // Default Bulan & Tahun
     const filterBln = document.getElementById('filterBulan');
     if (filterBln) filterBln.value = String(now.getMonth() + 1);
 
@@ -117,8 +115,8 @@ function showToast(msg, isError = false) {
     const toast = document.getElementById('toast');
     toast.querySelector('#toastMsg').innerText = msg;
     toast.querySelector('i').className = isError ? 'fas fa-exclamation-triangle' : 'fas fa-check-circle';
-    toast.querySelector('i').style.color = isError ? 'var(--danger)' : 'var(--neon-green)';
-    toast.style.borderColor = isError ? 'var(--danger)' : 'var(--neon-green)';
+    toast.querySelector('i').style.color = isError ? 'var(--danger)' : 'var(--primary)';
+    toast.style.borderColor = isError ? 'var(--danger)' : 'var(--primary)';
     toast.classList.add('show');
     setTimeout(() => toast.classList.remove('show'), 3500);
 }
@@ -174,7 +172,10 @@ function initApp() {
     document.getElementById('authScreen').classList.add('hidden');
     document.getElementById('mainApp').classList.remove('hidden');
     document.getElementById('lblUser').innerText = currentUser.nama;
-    document.getElementById('lblRole').innerText = currentUser.role;
+
+    // Kompatibilitas role: Tampilkan 'Pengawas' sebagai 'Guru Ngaji'
+    const roleTampil = (currentUser.role === 'Pengawas' ? 'Guru Ngaji' : currentUser.role);
+    document.getElementById('lblRole').innerText = roleTampil;
 
     let htmlMenu = '<div class="tab-btn active" onclick="switchTab(\'viewScan\', this)"><i class="fas fa-camera"></i> Scan</div>' +
         '<div class="tab-btn" onclick="switchTab(\'viewRekap\', this)"><i class="fas fa-file-alt"></i> Laporan</div>';
@@ -206,7 +207,6 @@ async function loadFilterOptions() {
 }
 
 function populateDropdowns() {
-    // 1. Dropdown Kelas
     const populateSelect = (selectId, list, defaultLabel) => {
         const el = document.getElementById(selectId);
         if (!el) return;
@@ -223,26 +223,7 @@ function populateDropdowns() {
 
     populateSelect('filterKelasRekap', filterOptionsCache.kelas, 'Semua Kelas');
     populateSelect('filterKelasKartu', filterOptionsCache.kelas, 'Semua Kelas');
-    populateSelect('filterPengawasRekap', filterOptionsCache.pengawas, 'Semua Ustadz / Pengawas');
-    populateSelect('filterTempatRekap', filterOptionsCache.tempat, 'Semua Tempat Ngaji');
-
-    // Dropdown Tempat Ngaji di Tab Scan
-    const scanTempatSelect = document.getElementById('tempatNgajiSelect');
-    if (scanTempatSelect) {
-        const curVal = scanTempatSelect.value;
-        scanTempatSelect.innerHTML = '<option value="AUTO">Otomatis (Bawaan Santri)</option>';
-        filterOptionsCache.tempat.forEach(t => {
-            const opt = document.createElement('option');
-            opt.value = t;
-            opt.innerText = t;
-            scanTempatSelect.appendChild(opt);
-        });
-        const customOpt = document.createElement('option');
-        customOpt.value = 'CUSTOM';
-        customOpt.innerText = '+ Ketik Tempat Baru...';
-        scanTempatSelect.appendChild(customOpt);
-        scanTempatSelect.value = curVal || 'AUTO';
-    }
+    populateSelect('filterPengawasRekap', filterOptionsCache.pengawas, 'Semua Guru Ngaji');
 }
 
 // -------------------------------------------------------------
@@ -255,19 +236,12 @@ function toggleCustomKegiatan() {
     else customInput.classList.add('hidden');
 }
 
-function toggleCustomTempat() {
-    const val = document.getElementById('tempatNgajiSelect').value;
-    const customInput = document.getElementById('tempatNgajiCustom');
-    if (val === 'CUSTOM') customInput.classList.remove('hidden');
-    else customInput.classList.add('hidden');
-}
-
 function startScanner() {
     document.getElementById('btnStartScan').classList.add('hidden');
     document.getElementById('btnStopScan').classList.remove('hidden');
     const statusBox = document.getElementById('scanStatus');
     statusBox.classList.remove('hidden', 'status-success', 'status-error');
-    statusBox.innerHTML = '<span class="loader" style="width:14px;height:14px;border-width:2px;"></span> Meminta izin kamera...';
+    statusBox.innerHTML = '<span class="loader"></span> Meminta izin kamera...';
 
     const selectedCam = document.getElementById('kameraSelect').value;
     html5QrcodeScanner = new Html5Qrcode("reader");
@@ -277,11 +251,11 @@ function startScanner() {
         .then(() => {
             isScanning = true;
             statusBox.className = 'scan-status';
-            statusBox.innerHTML = '<i class="fas fa-video"></i> Kamera aktif. Arahkan QR santri ke kotak.';
+            statusBox.innerHTML = '<i class="fas fa-video"></i> Kamera aktif. Arahkan QR santri ke kotak scanner.';
         })
         .catch(err => {
             statusBox.className = 'scan-status status-error';
-            statusBox.innerHTML = 'Gagal membuka kamera pilihan Anda. Pastikan izin kamera telah diberikan di browser.';
+            statusBox.innerHTML = 'Gagal membuka kamera. Pastikan izin kamera telah diberikan di browser.';
             stopScanner();
         });
 }
@@ -311,7 +285,7 @@ async function onScanSuccess(decodedText) {
 
     const statusBox = document.getElementById('scanStatus');
     statusBox.className = 'scan-status';
-    statusBox.innerHTML = '<span class="loader" style="width:14px;height:14px;border-width:2px;"></span> Menyimpan presensi...';
+    statusBox.innerHTML = '<span class="loader"></span> Menyimpan presensi...';
 
     let kegiatan = document.getElementById('kegiatanSelect').value;
     if (kegiatan === 'CUSTOM') {
@@ -319,20 +293,11 @@ async function onScanSuccess(decodedText) {
         if (!kegiatan) kegiatan = "Kegiatan Mengaji";
     }
 
-    let tempatNgaji = document.getElementById('tempatNgajiSelect').value;
-    if (tempatNgaji === 'CUSTOM') {
-        tempatNgaji = document.getElementById('tempatNgajiCustom').value.trim();
-        if (!tempatNgaji) tempatNgaji = "-";
-    } else if (tempatNgaji === 'AUTO') {
-        tempatNgaji = ""; // Server will fallback to student's default Tempat_Ngaji
-    }
-
     try {
         const res = await fetchAPI('scan', {
             qrData: decodedText,
             kegiatan: kegiatan,
-            pengawas: currentUser.nama,
-            tempatNgaji: tempatNgaji
+            pengawas: currentUser.nama
         });
 
         if (res.success) {
@@ -361,8 +326,8 @@ function appendLiveScanTable(data) {
     document.getElementById('liveCounter').innerText = localScanCount;
     const tbody = document.querySelector('#tableLiveScan tbody');
     const tr = document.createElement('tr');
-    tr.style.background = 'rgba(0, 255, 170, 0.12)';
-    tr.innerHTML = `<td>${data.waktu}</td><td><strong>${data.nama}</strong></td><td><span class="user-profile" style="font-size:0.75rem;">${data.kelas}</span></td><td>${data.tempat_ngaji || '-'}</td>`;
+    tr.style.background = 'rgba(5, 150, 105, 0.08)';
+    tr.innerHTML = `<td>${data.waktu}</td><td><strong>${data.nama}</strong></td><td><span class="user-profile" style="font-size:0.75rem;">${data.kelas}</span></td>`;
     tbody.insertBefore(tr, tbody.firstChild);
     setTimeout(() => { tr.style.background = 'transparent'; }, 2500);
 }
@@ -376,7 +341,7 @@ function toggleBatchPaste() {
 
 async function loadDataSiswa() {
     const tbody = document.querySelector('#tableSiswa tbody');
-    tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;"><span class="loader"></span> Memuat data santri...</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;"><span class="loader"></span> Memuat data santri...</td></tr>';
     try {
         const res = await fetchAPI('getSiswa');
         if (res.success) {
@@ -385,14 +350,14 @@ async function loadDataSiswa() {
             loadFilterOptions();
         }
     } catch (e) {
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--danger);">Gagal memuat data santri.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--danger);">Gagal memuat data santri.</td></tr>';
     }
 }
 
 function renderTabelSiswa(dataArray) {
     const tbody = document.querySelector('#tableSiswa tbody');
     if (dataArray.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Belum ada data santri.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">Belum ada data santri.</td></tr>';
         return;
     }
     let html = '';
@@ -401,7 +366,6 @@ function renderTabelSiswa(dataArray) {
             <td><code>${item.id}</code></td>
             <td><strong>${item.nama}</strong></td>
             <td><span class="user-profile" style="font-size:0.75rem;">${item.kelas}</span></td>
-            <td><i class="fas fa-mosque text-muted"></i> ${item.tempat_ngaji || '-'}</td>
             <td><button class="btn btn-danger" style="padding: 5px 10px; font-size: 0.8rem;" onclick="hapusSiswa('${item.id}')" title="Hapus"><i class="fas fa-trash"></i></button></td>
         </tr>`;
     });
@@ -413,8 +377,7 @@ function filterTabelSiswa() {
     const filtered = dataSiswaCache.filter(item =>
         item.nama.toLowerCase().includes(keyword) ||
         item.kelas.toLowerCase().includes(keyword) ||
-        item.id.toLowerCase().includes(keyword) ||
-        (item.tempat_ngaji && item.tempat_ngaji.toLowerCase().includes(keyword))
+        item.id.toLowerCase().includes(keyword)
     );
     renderTabelSiswa(filtered);
 }
@@ -455,7 +418,7 @@ async function hapusSiswa(id) {
             showToast(res.message, true);
         }
     } catch (e) {
-        showToast('Gagal menghapus.', true);
+        showToast('Gagal menghapus santri.', true);
     }
 }
 
@@ -519,7 +482,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // -------------------------------------------------------------
-// REKAP & LAPORAN PRESENSI (UPGRADED: BULANAN CENTANG & PER KELAS/USTADZ)
+// REKAP & LAPORAN PRESENSI (UPGRADED: MATRIKS BULANAN & GURU NGAJI)
 // -------------------------------------------------------------
 function setRekapMode(mode) {
     currentRekapMode = mode;
@@ -554,10 +517,9 @@ function setRekapMode(mode) {
 
 async function loadRekapData() {
     const tbodyHarian = document.querySelector('#tableRekap tbody');
-    tbodyHarian.innerHTML = '<tr><td colspan="7" style="text-align: center;"><span class="loader"></span> Memuat rekap presensi...</td></tr>';
+    tbodyHarian.innerHTML = '<tr><td colspan="6" style="text-align: center;"><span class="loader"></span> Memuat rekap presensi...</td></tr>';
     
     try {
-        // Ambil data siswa & data rekap
         const [resRekap, resSiswa] = await Promise.all([
             fetchAPI('getRekap'),
             dataSiswaCache.length === 0 ? fetchAPI('getSiswa') : Promise.resolve({ success: true, data: dataSiswaCache })
@@ -569,23 +531,20 @@ async function loadRekapData() {
             rekapCache = resRekap.data;
             applyRekapFilter();
         } else {
-            tbodyHarian.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--danger);">Gagal mengambil data rekap.</td></tr>';
+            tbodyHarian.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--danger);">Gagal mengambil data rekap.</td></tr>';
         }
     } catch (e) {
-        tbodyHarian.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--danger);">Koneksi terputus.</td></tr>';
+        tbodyHarian.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--danger);">Koneksi terputus.</td></tr>';
     }
 }
 
 function applyRekapFilter() {
     const valKelas = document.getElementById('filterKelasRekap').value;
     const valPengawas = document.getElementById('filterPengawasRekap').value;
-    const valTempat = document.getElementById('filterTempatRekap').value;
     const valKegiatan = document.getElementById('filterKegiatanRekap').value;
 
-    // Update Meta Header
     document.getElementById('metaKelas').innerText = valKelas === 'ALL' ? 'Semua Kelas' : valKelas;
-    document.getElementById('metaPengawas').innerText = valPengawas === 'ALL' ? 'Semua Ustadz/Pengawas' : valPengawas;
-    document.getElementById('metaTempat').innerText = valTempat === 'ALL' ? 'Semua Tempat Ngaji' : valTempat;
+    document.getElementById('metaPengawas').innerText = valPengawas === 'ALL' ? 'Semua Guru Ngaji' : valPengawas;
 
     if (currentRekapMode === 'harian') {
         const valTgl = document.getElementById('filterTanggal').value;
@@ -600,28 +559,26 @@ function applyRekapFilter() {
             const matchTgl = !targetTgl || item.tanggal === targetTgl;
             const matchKelas = valKelas === 'ALL' || item.kelas === valKelas;
             const matchPengawas = valPengawas === 'ALL' || item.pengawas === valPengawas;
-            const matchTempat = valTempat === 'ALL' || (item.tempat_ngaji && item.tempat_ngaji === valTempat);
             const matchKeg = valKegiatan === 'ALL' || item.kegiatan === valKegiatan;
-            return matchTgl && matchKelas && matchPengawas && matchTempat && matchKeg;
+            return matchTgl && matchKelas && matchPengawas && matchKeg;
         });
 
         renderTabelHarian(filtered);
 
     } else {
-        // Mode Matriks Bulanan
         const monthNum = parseInt(document.getElementById('filterBulan').value, 10);
         const yearNum = parseInt(document.getElementById('filterTahun').value, 10);
         const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
         document.getElementById('metaPeriode').innerText = monthNames[monthNum - 1] + ' ' + yearNum;
 
-        renderMatriksBulanan(monthNum, yearNum, valKelas, valPengawas, valTempat, valKegiatan);
+        renderMatriksBulanan(monthNum, yearNum, valKelas, valPengawas, valKegiatan);
     }
 }
 
 function renderTabelHarian(dataArray) {
     const tbody = document.querySelector('#tableRekap tbody');
     if (dataArray.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center;">Tidak ada data presensi yang sesuai filter.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Tidak ada data presensi yang sesuai filter.</td></tr>';
         return;
     }
     let html = '';
@@ -631,7 +588,6 @@ function renderTabelHarian(dataArray) {
             <td><code>${item.waktu}</code></td>
             <td><strong>${item.nama}</strong></td>
             <td><span class="user-profile" style="font-size:0.75rem;">${item.kelas}</span></td>
-            <td><i class="fas fa-mosque text-muted"></i> ${item.tempat_ngaji || '-'}</td>
             <td>${item.kegiatan}</td>
             <td><i class="fas fa-user-tie text-muted"></i> ${item.pengawas}</td>
         </tr>`;
@@ -639,22 +595,20 @@ function renderTabelHarian(dataArray) {
     tbody.innerHTML = html;
 }
 
-function renderMatriksBulanan(month, year, filterKelas, filterPengawas, filterTempat, filterKegiatan) {
+function renderMatriksBulanan(month, year, filterKelas, filterPengawas, filterKegiatan) {
     const thead = document.getElementById('matrixHead');
     const tbody = document.getElementById('matrixBody');
     thead.innerHTML = '';
     tbody.innerHTML = '';
 
-    // Hitung jumlah hari dalam bulan yang dipilih
     const daysInMonth = new Date(year, month, 0).getDate();
 
-    // 1. Buat Header Tabel Matriks
+    // 1. Header Tabel Matriks (Tanpa Kolom Tempat Ngaji)
     let trHead = '<tr>';
     trHead += '<th class="sticky-col col-no">No</th>';
     trHead += '<th class="sticky-col col-id">ID</th>';
     trHead += '<th class="sticky-col col-nama">Nama Santri</th>';
     trHead += '<th class="col-kelas">Kelas</th>';
-    trHead += '<th class="col-tempat">Tempat Ngaji</th>';
 
     for (let d = 1; d <= daysInMonth; d++) {
         trHead += `<th class="col-day">${d}</th>`;
@@ -662,29 +616,23 @@ function renderMatriksBulanan(month, year, filterKelas, filterPengawas, filterTe
     trHead += '<th class="col-total">Total Hadir</th></tr>';
     thead.innerHTML = trHead;
 
-    // 2. Filter Daftar Santri (Berdasarkan Kelas & Tempat Ngaji)
+    // 2. Filter Daftar Santri
     let daftarSantri = dataSiswaCache.filter(s => {
-        const matchK = filterKelas === 'ALL' || s.kelas === filterKelas;
-        const matchT = filterTempat === 'ALL' || (s.tempat_ngaji && s.tempat_ngaji === filterTempat);
-        return matchK && matchT;
+        return filterKelas === 'ALL' || s.kelas === filterKelas;
     });
 
     if (daftarSantri.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="${daysInMonth + 6}" style="text-align: center; padding: 25px;">Tidak ada data santri untuk filter kelas/tempat ini.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="${daysInMonth + 5}" style="text-align: center; padding: 25px;">Tidak ada data santri untuk filter kelas ini.</td></tr>`;
         return;
     }
 
-    // 3. Petakan Presensi Berdasarkan ID Santri & Hari
-    // Map: { id_siswa: { day_number: true } }
+    // 3. Petakan Presensi
     const presensiMap = {};
 
     rekapCache.forEach(log => {
-        // Filter log sesuai kriteria pengawas, tempat, dan kegiatan
         if (filterPengawas !== 'ALL' && log.pengawas !== filterPengawas) return;
-        if (filterTempat !== 'ALL' && log.tempat_ngaji !== filterTempat) return;
         if (filterKegiatan !== 'ALL' && log.kegiatan !== filterKegiatan) return;
 
-        // Parse tanggal "dd/MM/yyyy"
         if (!log.tanggal) return;
         const parts = log.tanggal.split('/');
         if (parts.length === 3) {
@@ -725,7 +673,6 @@ function renderMatriksBulanan(month, year, filterKelas, filterPengawas, filterTe
             <td class="sticky-col col-id"><code>${santri.id}</code></td>
             <td class="sticky-col col-nama"><strong>${santri.nama}</strong></td>
             <td class="col-kelas"><span class="user-profile" style="font-size:0.7rem;">${santri.kelas}</span></td>
-            <td class="col-tempat">${santri.tempat_ngaji || '-'}</td>
             ${dayCells}
             <td class="col-total"><strong>${totalHadir}</strong></td>
         </tr>`;
@@ -742,7 +689,6 @@ function unduhLaporanPDF() {
 
     const valKelas = document.getElementById('filterKelasRekap').value;
     const valPengawas = document.getElementById('filterPengawasRekap').value;
-    const valTempat = document.getElementById('filterTempatRekap').value;
     const metaPeriode = document.getElementById('metaPeriode').innerText;
 
     const printContainer = document.createElement('div');
@@ -751,7 +697,6 @@ function unduhLaporanPDF() {
     printContainer.style.color = '#111111';
     printContainer.style.fontFamily = 'Helvetica, Arial, sans-serif';
 
-    // Kop Laporan
     const kopHTML = `
         <div style="text-align: center; border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 15px;">
             <h2 style="margin: 0 0 5px 0; font-size: 18px; color: #111;">${appSettings.appName}</h2>
@@ -760,8 +705,7 @@ function unduhLaporanPDF() {
             </h3>
             <div style="font-size: 11px; color: #555; display: flex; justify-content: space-around; flex-wrap: wrap; gap: 5px;">
                 <span><strong>Kelas:</strong> ${valKelas === 'ALL' ? 'Semua Kelas' : valKelas}</span>
-                <span><strong>Ustadz/Pengawas:</strong> ${valPengawas === 'ALL' ? 'Semua Ustadz' : valPengawas}</span>
-                <span><strong>Tempat Ngaji:</strong> ${valTempat === 'ALL' ? 'Semua Tempat' : valTempat}</span>
+                <span><strong>Guru Ngaji:</strong> ${valPengawas === 'ALL' ? 'Semua Guru Ngaji' : valPengawas}</span>
                 <span><strong>Periode:</strong> ${metaPeriode}</span>
             </div>
         </div>
@@ -777,7 +721,6 @@ function unduhLaporanPDF() {
         targetTable = document.getElementById('tableMatrix').cloneNode(true);
         pdfFilename = `Rekap_Bulanan_${valKelas.replace(/\s+/g, '_')}_${metaPeriode.replace(/\s+/g, '_')}.pdf`;
 
-        // Styling khusus tabel matriks untuk PDF Landscape
         targetTable.style.width = '100%';
         targetTable.style.borderCollapse = 'collapse';
         targetTable.style.fontSize = '8px';
@@ -787,7 +730,7 @@ function unduhLaporanPDF() {
             el.style.padding = '3px 2px';
             el.style.textAlign = 'center';
             el.style.color = '#000';
-            el.style.position = 'static'; // hilangkan sticky
+            el.style.position = 'static';
         });
 
         targetTable.querySelectorAll('th').forEach(th => {
@@ -795,15 +738,13 @@ function unduhLaporanPDF() {
             th.style.fontWeight = 'bold';
         });
 
-        // Pastikan kolom nama rata kiri
         targetTable.querySelectorAll('td:nth-child(3)').forEach(td => {
             td.style.textAlign = 'left';
             td.style.paddingLeft = '5px';
         });
 
-        // Warna tanda centang di PDF
         targetTable.querySelectorAll('.cell-check').forEach(td => {
-            td.innerHTML = '&#10003;'; // unicode checkmark
+            td.innerHTML = '&#10003;';
             td.style.color = '#059669';
             td.style.fontWeight = 'bold';
         });
@@ -831,7 +772,6 @@ function unduhLaporanPDF() {
 
     printContainer.appendChild(targetTable);
 
-    // Footer Cetak
     const footer = document.createElement('div');
     footer.style.marginTop = '15px';
     footer.style.fontSize = '9px';
@@ -865,6 +805,148 @@ function unduhLaporanPDF() {
 }
 
 // -------------------------------------------------------------
+// DOWNLOAD LAPORAN CSV (HARIAN & BULANAN DENGAN UTF-8 BOM)
+// -------------------------------------------------------------
+function escapeCSV(text) {
+    if (text === null || text === undefined) return '""';
+    const str = String(text).replace(/"/g, '""');
+    return '"' + str + '"';
+}
+
+function triggerDownloadCSV(filename, csvContent) {
+    const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', filename);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    showToast("File CSV berhasil diunduh!");
+}
+
+function unduhLaporanCSV() {
+    const valKelas = document.getElementById('filterKelasRekap').value;
+    const valPengawas = document.getElementById('filterPengawasRekap').value;
+    const valKegiatan = document.getElementById('filterKegiatanRekap').value;
+    const metaPeriode = document.getElementById('metaPeriode').innerText;
+
+    if (currentRekapMode === 'harian') {
+        const valTgl = document.getElementById('filterTanggal').value;
+        let targetTgl = "";
+        if (valTgl) {
+            const parts = valTgl.split('-');
+            if (parts.length === 3) targetTgl = parts[2] + '/' + parts[1] + '/' + parts[0];
+        }
+
+        const filtered = rekapCache.filter(item => {
+            const matchTgl = !targetTgl || item.tanggal === targetTgl;
+            const matchKelas = valKelas === 'ALL' || item.kelas === valKelas;
+            const matchPengawas = valPengawas === 'ALL' || item.pengawas === valPengawas;
+            const matchKeg = valKegiatan === 'ALL' || item.kegiatan === valKegiatan;
+            return matchTgl && matchKelas && matchPengawas && matchKeg;
+        });
+
+        if (filtered.length === 0) {
+            showToast("Tidak ada data presensi untuk diunduh.", true);
+            return;
+        }
+
+        let csv = [
+            `Laporan Log Presensi Harian - ${appSettings.appName}`,
+            `Kelas: ${valKelas === 'ALL' ? 'Semua Kelas' : valKelas} | Guru Ngaji: ${valPengawas === 'ALL' ? 'Semua Guru Ngaji' : valPengawas} | Periode: ${metaPeriode}`,
+            "",
+            ["No", "Tanggal", "Waktu", "ID Santri", "Nama Santri", "Kelas", "Kegiatan", "Guru Ngaji"].map(escapeCSV).join(",")
+        ];
+
+        filtered.forEach((item, idx) => {
+            const row = [
+                idx + 1,
+                item.tanggal,
+                item.waktu,
+                item.id_siswa,
+                item.nama,
+                item.kelas,
+                item.kegiatan,
+                item.pengawas
+            ];
+            csv.push(row.map(escapeCSV).join(","));
+        });
+
+        const filename = `Rekap_Presensi_Harian_${valKelas.replace(/\s+/g, '_')}_${(targetTgl || 'Semua').replace(/\//g, '-')}.csv`;
+        triggerDownloadCSV(filename, csv.join("\r\n"));
+
+    } else {
+        const monthNum = parseInt(document.getElementById('filterBulan').value, 10);
+        const yearNum = parseInt(document.getElementById('filterTahun').value, 10);
+        const daysInMonth = new Date(yearNum, monthNum, 0).getDate();
+
+        let daftarSantri = dataSiswaCache.filter(s => {
+            return valKelas === 'ALL' || s.kelas === valKelas;
+        });
+
+        if (daftarSantri.length === 0) {
+            showToast("Tidak ada data santri untuk diunduh.", true);
+            return;
+        }
+
+        const presensiMap = {};
+        rekapCache.forEach(log => {
+            if (valPengawas !== 'ALL' && log.pengawas !== valPengawas) return;
+            if (valKegiatan !== 'ALL' && log.kegiatan !== valKegiatan) return;
+
+            if (!log.tanggal) return;
+            const parts = log.tanggal.split('/');
+            if (parts.length === 3) {
+                const logDay = parseInt(parts[0], 10);
+                const logMonth = parseInt(parts[1], 10);
+                const logYear = parseInt(parts[2], 10);
+
+                if (logMonth === monthNum && logYear === yearNum) {
+                    const sId = log.id_siswa;
+                    if (!presensiMap[sId]) presensiMap[sId] = {};
+                    presensiMap[sId][logDay] = true;
+                }
+            }
+        });
+
+        let csv = [
+            `Laporan Matriks Presensi Bulanan - ${appSettings.appName}`,
+            `Kelas: ${valKelas === 'ALL' ? 'Semua Kelas' : valKelas} | Guru Ngaji: ${valPengawas === 'ALL' ? 'Semua Guru Ngaji' : valPengawas} | Periode: ${metaPeriode}`,
+            ""
+        ];
+
+        const headers = ["No", "ID Santri", "Nama Santri", "Kelas"];
+        for (let d = 1; d <= daysInMonth; d++) {
+            headers.push(`Tgl ${d}`);
+        }
+        headers.push("Total Hadir");
+        csv.push(headers.map(escapeCSV).join(","));
+
+        daftarSantri.forEach((santri, idx) => {
+            let totalHadir = 0;
+            const row = [idx + 1, santri.id, santri.nama, santri.kelas];
+
+            for (let d = 1; d <= daysInMonth; d++) {
+                const isHadir = presensiMap[santri.id] && presensiMap[santri.id][d];
+                if (isHadir) {
+                    totalHadir++;
+                    row.push("Hadir");
+                } else {
+                    row.push("-");
+                }
+            }
+            row.push(totalHadir);
+            csv.push(row.map(escapeCSV).join(","));
+        });
+
+        const filename = `Rekap_Presensi_Bulanan_${valKelas.replace(/\s+/g, '_')}_${metaPeriode.replace(/\s+/g, '_')}.csv`;
+        triggerDownloadCSV(filename, csv.join("\r\n"));
+    }
+}
+
+// -------------------------------------------------------------
 // SETTINGS & USER MANAGEMENT
 // -------------------------------------------------------------
 async function simpanPengaturan() {
@@ -899,108 +981,12 @@ async function loadDataUsers() {
             }
             let html = '';
             res.data.forEach(u => {
+                const roleDisplay = (u.role === 'Pengawas' ? 'Guru Ngaji' : u.role);
                 html += `<tr>
                     <td><code>${u.id}</code></td>
                     <td><strong>${u.nama}</strong></td>
                     <td>${u.username}</td>
-                    <td><span class="user-profile" style="font-size:0.75rem;">${u.role}</span></td>
-                    <td><button class="btn btn-danger" style="padding: 5px 10px;" onclick="hapusAkun('${u.id}')" title="Hapus"><i class="fas fa-trash"></i></button></td>
-                </tr>`;
-            });
-            tbody.innerHTML = html;
-        }
-    } catch (e) { }
-}
-
-async function tambahAkunBaru() {
-    const nama = document.getElementById('akNama').value.trim();
-    const user = document.getElementById('akUser').value.trim();
-    const pass = document.getElementById('akPass').value.trim();
-    const role = document.getElementById('akRole').value;
-    if (!nama || !user || !pass) {
-        showToast('Lengkapi semua data akun!', true);
-        return;
-    }
-
-    const btn = document.getElementById('btnTambahAkun');
-    btn.innerHTML = '<span class="loader"></span> Memproses...';
-    try {
-        const res = await fetchAPI('addUser', { nama, username: user, password: pass, role });
-        btn.innerHTML = '<i class="fas fa-check"></i> Simpan Akun Baru';
-        if (res.success) {
-            showToast(res.message);
-            loadDataUsers();
-            loadFilterOptions();
-            document.getElementById('formAkunBaru').classList.add('hidden');
-            document.getElementById('akNama').value = '';
-            document.getElementById('akUser').value = '';
-            document.getElementById('akPass').value = '';
-        } else {
-            showToast(res.message, true);
-        }
-    } catch (e) {
-        btn.innerHTML = '<i class="fas fa-check"></i> Simpan Akun Baru';
-        showToast('Error koneksi ke server.', true);
-    }
-}
-
-async function hapusAkun(id) {
-    if (!confirm('Yakin ingin menghapus akun ID ' + id + '?')) return;
-    try {
-        const res = await fetchAPI('delUser', { id });
-        if (res.success) {
-            showToast(res.message);
-            loadDataUsers();
-            loadFilterOptions();
-        } else {
-            showToast(res.message, true);
-        }
-    } catch (e) {
-        showToast('Gagal menghapus akun.', true);
-    }
-}
-
-
-// -------------------------------------------------------------
-// SETTINGS & USER MANAGEMENT
-// -------------------------------------------------------------
-async function simpanPengaturan() {
-    const btn = document.getElementById('btnSaveSet');
-    const appName = document.getElementById('setAppName').value;
-
-    btn.innerHTML = '<span class="loader"></span> Menyimpan...';
-    try {
-        const res = await fetchAPI('saveSettings', { useLogo: 'true', logoUrl: '', appName: appName });
-        btn.innerHTML = '<i class="fas fa-save"></i> Simpan Nama Aplikasi';
-        if (res.success) {
-            showToast(res.message);
-            loadInitialSettings();
-        } else {
-            showToast("Gagal menyimpan.", true);
-        }
-    } catch (e) {
-        btn.innerHTML = '<i class="fas fa-save"></i> Simpan Nama Aplikasi';
-        showToast("Error koneksi.", true);
-    }
-}
-
-async function loadDataUsers() {
-    const tbody = document.querySelector('#tableUsers tbody');
-    tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;"><span class="loader"></span> Memuat akun...</td></tr>';
-    try {
-        const res = await fetchAPI('getUsers');
-        if (res.success) {
-            if (res.data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5">Belum ada akun.</td></tr>';
-                return;
-            }
-            let html = '';
-            res.data.forEach(u => {
-                html += `<tr>
-                    <td><code>${u.id}</code></td>
-                    <td><strong>${u.nama}</strong></td>
-                    <td>${u.username}</td>
-                    <td><span class="user-profile" style="font-size:0.75rem;">${u.role}</span></td>
+                    <td><span class="user-profile" style="font-size:0.75rem;">${roleDisplay}</span></td>
                     <td><button class="btn btn-danger" style="padding: 5px 10px;" onclick="hapusAkun('${u.id}')" title="Hapus"><i class="fas fa-trash"></i></button></td>
                 </tr>`;
             });
