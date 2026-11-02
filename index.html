@@ -15,7 +15,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <!-- Memanggil File CSS -->
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=1.5.0">
 </head>
 
 <body>
@@ -60,7 +60,7 @@
         <nav class="navbar">
             <div class="brand">
                 <div class="brand-logo-wrap">
-                    <img src="https://i.ibb.co.com/jPVTMGCK/logo-aplikasi.png" id="navLogo" alt="Logo Aplikasi">
+                    <img src="https://i.ibb.co.com/jPVTMGCK/logo-aplikasi.png" id="navLogo" alt="Logo Aplikasi" width="40" height="40" style="width: 40px !important; height: 40px !important; max-width: 40px !important; max-height: 40px !important; min-width: 40px !important; min-height: 40px !important; object-fit: contain !important; border-radius: 8px !important; display: block !important;">
                 </div>
                 <div class="brand-text">
                     <span class="app-title-display brand-title">Presensi Santri</span>
@@ -333,7 +333,7 @@
                         </div>
 
                         <!-- Filter Kegiatan (DENGAN OPSI LENGKAP & DINAMIS) -->
-                        <div class="filter-item">
+                        <div class="filter-item" id="filterKegiatanGroup">
                             <label><i class="fas fa-clipboard-list"></i> Sesi Kegiatan</label>
                             <select id="filterKegiatanRekap" onchange="applyRekapFilter()">
                                 <option value="ALL">Semua Kegiatan</option>
@@ -467,7 +467,7 @@
     <div id="toast"><i class="fas fa-info-circle"></i> <span id="toastMsg">Pesan</span></div>
 
     <!-- Memanggil File Javascript -->
-    <script src="app.js"></script>
+    <script src="app.js?v=1.5.0"></script>
 </body>
 
 </html>
