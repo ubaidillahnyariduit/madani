@@ -1,47 +1,72 @@
+/* =========================================================================
+   ZETTBOT - CLEAN & MODERN LIGHT THEME (ANTI-AI HUMAN-CRAFTED AESTHETIC)
+   PALET: Slate Clean, Crisp White, Emerald Accent & Warm Whitespace
+   ========================================================================= */
+
 :root {
-    --bg-dark: #0b0f19;
-    --card-bg: rgba(21, 27, 38, 0.7);
-    --card-border: rgba(255, 255, 255, 0.08);
-    --neon-green: #00ffaa;
-    --neon-hover: #00cca4;
-    --text-main: #f8fafc;
-    --text-muted: #94a3b8;
-    --danger: #ff4757;
-    --warning: #ffa502;
+    --bg-page: #f8fafc;
+    --card-bg: #ffffff;
+    --card-border: #e2e8f0;
+    --card-border-subtle: #f1f5f9;
+    --primary: #059669;
+    --primary-hover: #047857;
+    --primary-light: #ecfdf5;
+    --primary-border: #a7f3d0;
+    --text-main: #0f172a;
+    --text-muted: #64748b;
+    --text-light: #94a3b8;
+    --danger: #dc2626;
+    --danger-hover: #b91c1c;
+    --danger-light: #fef2f2;
+    --danger-border: #fecaca;
+    --warning: #d97706;
+    --warning-light: #fffbeb;
+    --info-bg: #f0fdf4;
+    --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.04);
+    --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.08), 0 1px 2px -1px rgb(0 0 0 / 0.08);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.06), 0 2px 4px -2px rgb(0 0 0 / 0.06);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.08);
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
 }
 
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 body {
-    background-color: var(--bg-dark);
+    background-color: var(--bg-page);
     color: var(--text-main);
     min-height: 100vh;
     overflow-x: hidden;
-    background-image: radial-gradient(circle at 15% 50%, rgba(0, 255, 170, 0.05), transparent 25%),
-        radial-gradient(circle at 85% 30%, rgba(0, 255, 170, 0.03), transparent 25%);
+    background-image: 
+        radial-gradient(at 0% 0%, rgba(5, 150, 105, 0.03) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(15, 23, 42, 0.02) 0px, transparent 50%);
+    background-attachment: fixed;
+    line-height: 1.5;
 }
 
-h1,
-h2,
-h3 {
+/* TYPOGRAPHY */
+h1, h2, h3, h4, h5 {
     font-weight: 600;
     color: var(--text-main);
+    letter-spacing: -0.015em;
 }
 
 .text-neon {
-    color: var(--neon-green);
+    color: var(--primary) !important;
 }
 
 .text-muted {
     color: var(--text-muted);
-    font-size: 0.9rem;
+    font-size: 0.88rem;
 }
 
+/* UTILITY CLASSES */
 .flex-between {
     display: flex;
     justify-content: space-between;
@@ -52,331 +77,501 @@ h3 {
     display: none !important;
 }
 
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px 16px;
+}
+
+/* NAVBAR */
 .navbar {
-    background: rgba(11, 15, 25, 0.9);
-    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.96);
+    backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--card-border);
-    padding: 15px 20px;
+    padding: 14px 24px;
     position: sticky;
     top: 0;
     z-index: 100;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    box-shadow: var(--shadow-xs);
 }
 
 .brand {
     display: flex;
     align-items: center;
+    gap: 10px;
     font-size: 1.1rem;
     font-weight: 700;
-    letter-spacing: 0.5px;
+    color: var(--text-main);
 }
 
 .brand img {
-    height: 32px;
-    width: 32px;
+    height: 34px;
+    width: 34px;
     object-fit: cover;
     border-radius: 50%;
-    margin-right: 10px;
-    border: 2px solid var(--neon-green);
-    background: #fff;
-}
-
-.logo-sekolah {
-    width: 80px;
-    height: 80px;
-    margin-bottom: 15px;
-    border-radius: 15px;
-    border: 2px solid var(--neon-green);
-    padding: 5px;
-    background: #fff;
+    border: 1px solid var(--card-border);
 }
 
 .user-profile {
-    font-size: 0.9rem;
-    background: rgba(0, 255, 170, 0.1);
-    padding: 5px 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #f1f5f9;
+    padding: 6px 12px;
     border-radius: 20px;
-    border: 1px solid rgba(0, 255, 170, 0.2);
+    font-size: 0.85rem;
+    color: var(--text-main);
+    border: 1px solid var(--card-border);
 }
 
-.container {
-    max-width: 1000px;
-    margin: 0 auto;
-    padding: 20px;
-    padding-bottom: 80px;
+.user-profile i {
+    color: var(--primary);
 }
 
+/* NAVIGATION TABS */
 .nav-tabs {
     display: flex;
+    gap: 6px;
+    background: #e2e8f0;
+    padding: 4px;
+    border-radius: var(--radius-md);
+    margin-bottom: 22px;
     overflow-x: auto;
-    gap: 10px;
-    margin-bottom: 25px;
-    padding-bottom: 5px;
-    scrollbar-width: none;
-}
-
-.nav-tabs::-webkit-scrollbar {
-    display: none;
+    border: 1px solid #cbd5e1;
 }
 
 .tab-btn {
-    background: var(--card-bg);
-    border: 1px solid var(--card-border);
-    color: var(--text-muted);
-    padding: 10px 18px;
-    border-radius: 12px;
+    padding: 9px 18px;
+    border-radius: 8px;
     cursor: pointer;
-    white-space: nowrap;
+    font-size: 0.88rem;
     font-weight: 500;
-    transition: 0.3s;
+    color: var(--text-muted);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+    white-space: nowrap;
 }
 
 .tab-btn:hover {
-    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-main);
+    background: rgba(255, 255, 255, 0.5);
 }
 
 .tab-btn.active {
-    background: rgba(0, 255, 170, 0.1);
-    border-color: var(--neon-green);
-    color: var(--neon-green);
-    box-shadow: 0 0 15px rgba(0, 255, 170, 0.15);
+    background: #ffffff;
+    color: var(--primary);
+    font-weight: 600;
+    box-shadow: var(--shadow-sm);
 }
 
+/* CARDS */
 .glass-card {
     background: var(--card-bg);
-    backdrop-filter: blur(12px);
     border: 1px solid var(--card-border);
-    border-radius: 16px;
-    padding: 20px;
-    margin-bottom: 20px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    border-radius: var(--radius-md);
+    padding: 24px;
+    margin-bottom: 22px;
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow 0.2s ease;
 }
 
+.glass-card:hover {
+    box-shadow: var(--shadow-md);
+}
+
+/* BUTTONS */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 9px 16px;
+    border-radius: 8px;
+    font-size: 0.88rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+    text-decoration: none;
+    outline: none;
+}
+
+.btn-primary {
+    background: var(--primary);
+    color: #ffffff;
+}
+
+.btn-primary:hover {
+    background: var(--primary-hover);
+    box-shadow: 0 2px 4px rgba(5, 150, 105, 0.25);
+}
+
+.btn-outline {
+    background: #ffffff;
+    border-color: #cbd5e1;
+    color: var(--text-main);
+}
+
+.btn-outline:hover {
+    background: #f8fafc;
+    border-color: #94a3b8;
+}
+
+.btn-danger {
+    background: var(--danger-light);
+    color: var(--danger);
+    border-color: var(--danger-border);
+}
+
+.btn-danger:hover {
+    background: var(--danger);
+    color: #ffffff;
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* FORMS & INPUTS */
 .form-group {
-    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 14px;
 }
 
-label {
-    display: block;
-    margin-bottom: 6px;
-    font-size: 0.85rem;
+.form-group label {
+    font-size: 0.82rem;
+    font-weight: 500;
     color: var(--text-muted);
 }
 
-input,
+input[type="text"],
+input[type="password"],
+input[type="date"],
 select,
 textarea {
     width: 100%;
-    padding: 12px 15px;
-    border-radius: 10px;
-    background: rgba(0, 0, 0, 0.2);
-    border: 1px solid var(--card-border);
+    padding: 9px 12px;
+    border-radius: 8px;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
     color: var(--text-main);
-    font-size: 0.95rem;
+    font-size: 0.88rem;
+    transition: all 0.2s ease;
     outline: none;
-    transition: 0.3s;
 }
 
 input:focus,
 select:focus,
 textarea:focus {
-    border-color: var(--neon-green);
-    box-shadow: 0 0 8px rgba(0, 255, 170, 0.2);
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.15);
 }
 
-.btn {
-    padding: 12px 20px;
-    border-radius: 10px;
-    font-weight: 600;
-    cursor: pointer;
-    border: none;
-    transition: 0.3s;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-}
-
-.btn-primary {
-    background: var(--neon-green);
-    color: #000;
-}
-
-.btn-primary:hover {
-    background: var(--neon-hover);
-    box-shadow: 0 0 15px rgba(0, 255, 170, 0.4);
-}
-
-.btn-danger {
-    background: rgba(255, 71, 87, 0.1);
-    color: var(--danger);
-    border: 1px solid rgba(255, 71, 87, 0.3);
-}
-
-.btn-danger:hover {
-    background: var(--danger);
-    color: #fff;
-}
-
-.btn-outline {
-    background: transparent;
-    border: 1px solid var(--card-border);
-    color: var(--text-main);
-}
-
-.btn-outline:hover {
-    background: rgba(255, 255, 255, 0.05);
-}
-
+/* TABLES */
 .table-responsive {
+    width: 100%;
     overflow-x: auto;
-    border-radius: 12px;
+    border-radius: 8px;
     border: 1px solid var(--card-border);
+    margin-top: 14px;
+    background: #ffffff;
 }
 
 table {
     width: 100%;
     border-collapse: collapse;
+    font-size: 0.88rem;
     text-align: left;
 }
 
-th,
-td {
-    padding: 12px 15px;
-    border-bottom: 1px solid var(--card-border);
-}
-
-th {
-    background: rgba(0, 0, 0, 0.3);
-    font-weight: 500;
+table th {
+    background: #f1f5f9;
     color: var(--text-muted);
-    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--card-border);
+    font-size: 0.8rem;
     text-transform: uppercase;
+    letter-spacing: 0.03em;
 }
 
-tr:hover {
-    background: rgba(255, 255, 255, 0.02);
+table td {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--card-border);
+    color: var(--text-main);
 }
 
+table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+table tbody tr:hover {
+    background: #f8fafc;
+}
+
+code {
+    background: #f1f5f9;
+    color: #0f766e;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.82rem;
+    font-family: monospace;
+    border: 1px solid #e2e8f0;
+}
+
+/* SCANNER SECTION */
 #reader {
     width: 100%;
-    border-radius: 16px;
+    max-width: 480px;
+    margin: 15px auto;
+    border-radius: var(--radius-md);
     overflow: hidden;
-    border: 2px dashed var(--card-border);
-    background: #000;
-    position: relative;
-    margin-bottom: 20px;
-}
-
-#reader video {
-    object-fit: cover;
+    border: 2px dashed #cbd5e1;
+    background: #f8fafc;
 }
 
 .scan-status {
-    padding: 10px;
+    padding: 12px;
     border-radius: 8px;
+    margin: 14px 0;
     text-align: center;
     font-weight: 500;
-    margin-bottom: 15px;
+    font-size: 0.9rem;
+    background: #f1f5f9;
+    border: 1px solid var(--card-border);
+    color: var(--text-main);
 }
 
 .status-success {
-    background: rgba(0, 255, 170, 0.1);
-    color: var(--neon-green);
-    border: 1px solid var(--neon-green);
+    background: var(--primary-light) !important;
+    border-color: var(--primary-border) !important;
+    color: var(--primary) !important;
 }
 
 .status-error {
-    background: rgba(255, 71, 87, 0.1);
-    color: var(--danger);
-    border: 1px solid var(--danger);
+    background: var(--danger-light) !important;
+    border-color: var(--danger-border) !important;
+    color: var(--danger) !important;
 }
 
+/* REKAP KONTROL & FILTER (CLEAN LIGHT) */
+.btn-mode {
+    background: #f1f5f9;
+    border: 1px solid #cbd5e1;
+    color: var(--text-muted);
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 0.88rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+}
+
+.btn-mode:hover {
+    background: #e2e8f0;
+    color: var(--text-main);
+}
+
+.btn-mode.active {
+    background: var(--primary-light);
+    border-color: var(--primary-border);
+    color: var(--primary);
+    font-weight: 600;
+    box-shadow: var(--shadow-xs);
+}
+
+.filter-panel {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    background: #f8fafc;
+    padding: 16px;
+    border-radius: 10px;
+    border: 1px solid var(--card-border);
+    margin-bottom: 16px;
+}
+
+.filter-item {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.filter-item label {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.rekap-meta-card {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    background: var(--primary-light);
+    border: 1px solid var(--primary-border);
+    border-left: 4px solid var(--primary);
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    font-size: 0.85rem;
+}
+
+.meta-item {
+    display: inline-flex;
+    gap: 5px;
+    align-items: center;
+}
+
+.meta-label {
+    color: var(--text-muted);
+}
+
+/* MATRIKS BULANAN (CLEAN LIGHT AESTHETIC) */
+.matrix-legend {
+    display: flex;
+    gap: 16px;
+    font-size: 0.82rem;
+    margin-bottom: 12px;
+    color: var(--text-muted);
+    padding: 6px 4px;
+}
+
+.matrix-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 0.82rem;
+}
+
+.matrix-table th,
+.matrix-table td {
+    padding: 8px 6px;
+    text-align: center;
+    border-bottom: 1px solid var(--card-border);
+    border-right: 1px solid #f1f5f9;
+    white-space: nowrap;
+}
+
+.matrix-table th {
+    background: #f1f5f9;
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: 0.75rem;
+    border-top: 1px solid var(--card-border);
+}
+
+.col-day {
+    min-width: 30px;
+}
+
+.col-total {
+    background: #ecfdf5 !important;
+    color: var(--primary) !important;
+    font-weight: 700;
+    min-width: 55px;
+}
+
+.cell-check {
+    color: var(--primary);
+    font-size: 0.95rem;
+    background: #f0fdf4;
+    font-weight: bold;
+}
+
+.cell-empty {
+    color: #cbd5e1;
+}
+
+/* Sticky columns pada tabel matriks bulanan */
+.matrix-table .sticky-col {
+    position: sticky;
+    background: #ffffff;
+    z-index: 2;
+}
+
+.matrix-table th.sticky-col {
+    background: #f1f5f9;
+    z-index: 3;
+}
+
+.matrix-table .col-no {
+    left: 0;
+    min-width: 35px;
+}
+
+.matrix-table .col-id {
+    left: 35px;
+    min-width: 70px;
+}
+
+.matrix-table .col-nama {
+    left: 105px;
+    min-width: 140px;
+    text-align: left;
+    padding-left: 10px;
+    box-shadow: 2px 0 4px rgba(0, 0, 0, 0.05);
+}
+
+/* CETAK KARTU QR */
 .grid-cards {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 15px;
+    gap: 16px;
 }
 
-/* KARTU POTRAIT */
 .qr-id-card {
-    background: #fff;
-    color: #000;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
     border-radius: 12px;
-    padding: 20px 15px;
+    padding: 16px;
     text-align: center;
-    border: 2px solid #ddd;
+    box-shadow: var(--shadow-sm);
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    width: 220px;
-    margin: 0 auto;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.qr-id-card .card-logo {
-    width: 60px;
-    height: 60px;
+.card-logo {
+    height: 40px;
     object-fit: contain;
-    margin-bottom: 5px;
+    margin-bottom: 6px;
 }
 
 .qr-id-card canvas {
     margin: 10px 0;
-    border: 3px solid #eee;
-    border-radius: 8px;
-    padding: 5px;
 }
 
 .qr-id-card h4 {
-    font-size: 1.15rem;
-    margin-top: 5px;
-    margin-bottom: 2px;
-    color: #111;
-    font-weight: 700;
-    text-transform: uppercase;
+    font-size: 0.95rem;
+    margin-bottom: 4px;
 }
 
 .qr-id-card p {
-    font-size: 0.85rem;
-    color: #555;
-    font-weight: 600;
-    margin-bottom: 0;
+    font-size: 0.8rem;
+    color: var(--text-muted);
 }
 
-#toast {
-    position: fixed;
-    bottom: -100px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: var(--card-bg);
-    border: 1px solid var(--neon-green);
-    color: var(--text-main);
-    padding: 12px 24px;
-    border-radius: 30px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-    z-index: 9999;
-    transition: 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-    backdrop-filter: blur(10px);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-#toast.show {
-    bottom: 30px;
-}
-
+/* AUTH / LOGIN SCREEN */
 #authScreen {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
-    background: var(--bg-dark);
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
     z-index: 2000;
     display: flex;
     align-items: center;
@@ -388,22 +583,62 @@ tr:hover {
     max-width: 400px;
     width: 100%;
     text-align: center;
+    background: #ffffff;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    padding: 32px 28px;
+    border: 1px solid var(--card-border);
 }
 
-.auth-card i {
-    font-size: 3rem;
-    color: var(--neon-green);
-    margin-bottom: 15px;
+.logo-sekolah {
+    height: 64px;
+    width: 64px;
+    object-fit: cover;
+    margin-bottom: 12px;
+    border-radius: 50%;
+    border: 2px solid var(--primary-border);
 }
 
+/* TOAST */
+#toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: #ffffff;
+    color: var(--text-main);
+    border: 1px solid var(--card-border);
+    border-left: 4px solid var(--primary);
+    padding: 14px 18px;
+    border-radius: 8px;
+    box-shadow: var(--shadow-lg);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 3000;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+#toast.show {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+/* LOADER */
 .loader {
     display: inline-block;
-    width: 20px;
-    height: 20px;
-    border: 3px solid rgba(255, 255, 255, 0.3);
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(0, 0, 0, 0.15);
     border-radius: 50%;
-    border-top-color: var(--neon-green);
-    animation: spin 1s ease-in-out infinite;
+    border-top-color: var(--primary);
+    animation: spin 0.8s linear infinite;
+    vertical-align: middle;
 }
 
 @keyframes spin {
@@ -412,6 +647,7 @@ tr:hover {
     }
 }
 
+/* PRINT MEDIA */
 @media print {
     body * {
         visibility: hidden;
@@ -439,356 +675,4 @@ tr:hover {
         grid-template-columns: repeat(3, 1fr);
         gap: 10px;
     }
-}
-
-
-/* =========================================================================
-   ZETTBOT - REKAP PRESENSI & MATRIKS BULANAN STYLES (ANTI-AI AESTHETIC)
-   ========================================================================= */
-
-.btn-mode {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--card-border);
-    color: var(--text-muted);
-    padding: 8px 16px;
-    border-radius: 8px;
-    font-size: 0.88rem;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.2s ease;
-}
-
-.btn-mode:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: var(--text-main);
-}
-
-.btn-mode.active {
-    background: rgba(0, 255, 170, 0.15);
-    border-color: var(--neon-green);
-    color: var(--neon-green);
-    font-weight: 600;
-}
-
-.filter-panel {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 12px;
-    background: rgba(0, 0, 0, 0.25);
-    padding: 14px;
-    border-radius: 10px;
-    border: 1px solid var(--card-border);
-    margin-bottom: 16px;
-}
-
-.filter-item {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.filter-item label {
-    font-size: 0.75rem;
-    color: var(--text-muted);
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-
-.filter-item select,
-.filter-item input {
-    width: 100%;
-    padding: 8px 10px;
-    border-radius: 6px;
-    background: rgba(15, 23, 42, 0.85);
-    border: 1px solid var(--card-border);
-    color: var(--text-main);
-    font-size: 0.85rem;
-    outline: none;
-    transition: border-color 0.2s ease;
-}
-
-.filter-item select:focus,
-.filter-item input:focus {
-    border-color: var(--neon-green);
-}
-
-.rekap-meta-card {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 16px;
-    background: rgba(0, 255, 170, 0.05);
-    border-left: 3px solid var(--neon-green);
-    padding: 10px 14px;
-    border-radius: 6px;
-    margin-bottom: 16px;
-    font-size: 0.85rem;
-}
-
-.meta-item {
-    display: inline-flex;
-    gap: 5px;
-    align-items: center;
-}
-
-.meta-label {
-    color: var(--text-muted);
-}
-
-.matrix-legend {
-    display: flex;
-    gap: 16px;
-    font-size: 0.8rem;
-    margin-bottom: 10px;
-    color: var(--text-muted);
-}
-
-.matrix-table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-    font-size: 0.82rem;
-}
-
-.matrix-table th,
-.matrix-table td {
-    padding: 8px 6px;
-    text-align: center;
-    border-bottom: 1px solid var(--card-border);
-    white-space: nowrap;
-}
-
-.matrix-table th {
-    background: rgba(15, 23, 42, 0.95);
-    color: var(--text-muted);
-    font-weight: 600;
-    font-size: 0.75rem;
-}
-
-.col-day {
-    min-width: 28px;
-}
-
-.col-total {
-    background: rgba(0, 255, 170, 0.08);
-    color: var(--neon-green);
-    font-weight: 700;
-    min-width: 50px;
-}
-
-.cell-check {
-    color: var(--neon-green);
-    font-size: 0.95rem;
-}
-
-.cell-empty {
-    color: rgba(255, 255, 255, 0.18);
-}
-
-/* Kolom nama & ID beku (sticky) saat scroll horizontal di layar ponsel */
-.matrix-table .sticky-col {
-    position: sticky;
-    background: #0f172a;
-    z-index: 2;
-}
-
-.matrix-table th.sticky-col {
-    z-index: 3;
-}
-
-.matrix-table .col-no {
-    left: 0;
-    min-width: 35px;
-}
-
-.matrix-table .col-id {
-    left: 35px;
-    min-width: 70px;
-}
-
-.matrix-table .col-nama {
-    left: 105px;
-    min-width: 140px;
-    text-align: left;
-    padding-left: 10px;
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.35);
-}
-
-
-/* =========================================================================
-   ZETTBOT - REKAP PRESENSI & MATRIKS BULANAN STYLES (ANTI-AI AESTHETIC)
-   ========================================================================= */
-
-.btn-mode {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--card-border);
-    color: var(--text-muted);
-    padding: 8px 16px;
-    border-radius: 8px;
-    font-size: 0.88rem;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.2s ease;
-}
-
-.btn-mode:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: var(--text-main);
-}
-
-.btn-mode.active {
-    background: rgba(0, 255, 170, 0.15);
-    border-color: var(--neon-green);
-    color: var(--neon-green);
-    font-weight: 600;
-}
-
-.filter-panel {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 12px;
-    background: rgba(0, 0, 0, 0.25);
-    padding: 14px;
-    border-radius: 10px;
-    border: 1px solid var(--card-border);
-    margin-bottom: 16px;
-}
-
-.filter-item {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.filter-item label {
-    font-size: 0.75rem;
-    color: var(--text-muted);
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-
-.filter-item select,
-.filter-item input {
-    width: 100%;
-    padding: 8px 10px;
-    border-radius: 6px;
-    background: rgba(15, 23, 42, 0.85);
-    border: 1px solid var(--card-border);
-    color: var(--text-main);
-    font-size: 0.85rem;
-    outline: none;
-    transition: border-color 0.2s ease;
-}
-
-.filter-item select:focus,
-.filter-item input:focus {
-    border-color: var(--neon-green);
-}
-
-.rekap-meta-card {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 16px;
-    background: rgba(0, 255, 170, 0.05);
-    border-left: 3px solid var(--neon-green);
-    padding: 10px 14px;
-    border-radius: 6px;
-    margin-bottom: 16px;
-    font-size: 0.85rem;
-}
-
-.meta-item {
-    display: inline-flex;
-    gap: 5px;
-    align-items: center;
-}
-
-.meta-label {
-    color: var(--text-muted);
-}
-
-.matrix-legend {
-    display: flex;
-    gap: 16px;
-    font-size: 0.8rem;
-    margin-bottom: 10px;
-    color: var(--text-muted);
-}
-
-.matrix-table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-    font-size: 0.82rem;
-}
-
-.matrix-table th,
-.matrix-table td {
-    padding: 8px 6px;
-    text-align: center;
-    border-bottom: 1px solid var(--card-border);
-    white-space: nowrap;
-}
-
-.matrix-table th {
-    background: rgba(15, 23, 42, 0.95);
-    color: var(--text-muted);
-    font-weight: 600;
-    font-size: 0.75rem;
-}
-
-.col-day {
-    min-width: 28px;
-}
-
-.col-total {
-    background: rgba(0, 255, 170, 0.08);
-    color: var(--neon-green);
-    font-weight: 700;
-    min-width: 50px;
-}
-
-.cell-check {
-    color: var(--neon-green);
-    font-size: 0.95rem;
-}
-
-.cell-empty {
-    color: rgba(255, 255, 255, 0.18);
-}
-
-/* Kolom nama & ID beku (sticky) saat scroll horizontal di layar ponsel */
-.matrix-table .sticky-col {
-    position: sticky;
-    background: #0f172a;
-    z-index: 2;
-}
-
-.matrix-table th.sticky-col {
-    z-index: 3;
-}
-
-.matrix-table .col-no {
-    left: 0;
-    min-width: 35px;
-}
-
-.matrix-table .col-id {
-    left: 35px;
-    min-width: 70px;
-}
-
-.matrix-table .col-nama {
-    left: 105px;
-    min-width: 140px;
-    text-align: left;
-    padding-left: 10px;
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.35);
 }
