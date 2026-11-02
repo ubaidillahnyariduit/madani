@@ -78,29 +78,17 @@
                         </select>
                     </div>
 
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 15px;">
-                        <div class="form-group">
-                            <label>Pilih Kegiatan</label>
-                            <select id="kegiatanSelect" onchange="toggleCustomKegiatan()">
-                                <option value="Subuh Berjama'ah">Subuh Berjama'ah</option>
-                                <option value="Dzuhur Berjama'ah">Dzuhur Berjama'ah</option>
-                                <option value="Maghrib Mengaji">Maghrib Mengaji</option>
-                                <option value="Mengaji Sore">Mengaji Sore</option>
-                                <option value="CUSTOM">Lainnya (Ketik Manual)...</option>
-                            </select>
-                            <input type="text" id="kegiatanCustom" class="hidden"
-                                placeholder="Ketik nama kegiatan disini..." style="margin-top: 10px;">
-                        </div>
-
-                        <div class="form-group">
-                            <label>Tempat Ngaji / Lokasi</label>
-                            <select id="tempatNgajiSelect" onchange="toggleCustomTempat()">
-                                <option value="AUTO">Otomatis (Bawaan Santri)</option>
-                                <option value="CUSTOM">+ Ketik Tempat Baru...</option>
-                            </select>
-                            <input type="text" id="tempatNgajiCustom" class="hidden"
-                                placeholder="Misal: Musholla Al-Ikhlas" style="margin-top: 10px;">
-                        </div>
+                    <div class="form-group" style="margin-bottom: 15px;">
+                        <label>Pilih Kegiatan</label>
+                        <select id="kegiatanSelect" onchange="toggleCustomKegiatan()">
+                            <option value="Subuh Berjama'ah">Subuh Berjama'ah</option>
+                            <option value="Dzuhur Berjama'ah">Dzuhur Berjama'ah</option>
+                            <option value="Maghrib Mengaji">Maghrib Mengaji</option>
+                            <option value="Mengaji Sore">Mengaji Sore</option>
+                            <option value="CUSTOM">Lainnya (Ketik Manual)...</option>
+                        </select>
+                        <input type="text" id="kegiatanCustom" class="hidden"
+                            placeholder="Ketik nama kegiatan disini..." style="margin-top: 10px;">
                     </div>
 
                     <div id="reader"></div>
@@ -122,7 +110,6 @@
                                     <th>Waktu</th>
                                     <th>Nama Siswa</th>
                                     <th>Kelas</th>
-                                    <th>Tempat Ngaji</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -136,7 +123,7 @@
                 <div class="glass-card">
                     <h3><i class="fas fa-users text-neon"></i> Manajemen Data Santri / Siswa</h3>
                     <div class="flex-between" style="margin-top: 15px; margin-bottom: 15px; gap: 10px; flex-wrap: wrap;">
-                        <input type="text" id="searchSiswa" placeholder="Cari Nama / Kelas / Tempat Ngaji..."
+                        <input type="text" id="searchSiswa" placeholder="Cari Nama / Kelas..."
                             onkeyup="filterTabelSiswa()" style="max-width: 320px;">
                         <div style="display:flex; gap:10px;">
                             <button class="btn btn-outline" onclick="toggleBatchPaste()"><i class="fas fa-paste"></i> Batch Import</button>
@@ -146,9 +133,9 @@
                     <div id="batchArea" class="hidden"
                         style="margin-bottom: 20px; background: rgba(0,0,0,0.25); padding: 15px; border-radius: 10px; border: 1px dashed var(--card-border);">
                         <label class="text-neon" style="display:block; margin-bottom: 6px;">
-                            Format Paste Excel: <code>Nama [Tab] Kelas [Tab] Tempat_Ngaji</code> ATAU <code>Nama [Tab] Kelas</code>
+                            Format Paste Excel: <code>Nama [Tab] Kelas</code>
                         </label>
-                        <textarea id="pasteData" rows="5" placeholder="Contoh:&#10;Ahmad Fauzi	10-A	Musholla Nurul Iman&#10;Siti Maryam	10-B	Masjid Jami"></textarea>
+                        <textarea id="pasteData" rows="5" placeholder="Contoh:&#10;Ahmad Fauzi	10-A&#10;Siti Maryam	10-B"></textarea>
                         <button class="btn btn-primary" onclick="prosesBatchImport()" style="margin-top: 10px;">
                             <i class="fas fa-save"></i> Simpan Data Batch
                         </button>
@@ -161,13 +148,12 @@
                                     <th>ID</th>
                                     <th>Nama Siswa</th>
                                     <th>Kelas</th>
-                                    <th>Tempat Ngaji</th>
                                     <th>Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td colspan="5" style="text-align: center;">Memuat data...</td>
+                                    <td colspan="4" style="text-align: center;">Memuat data...</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -204,9 +190,12 @@
                                 <i class="fas fa-calendar-alt"></i> Matriks Bulanan (Centang)
                             </button>
                         </div>
-                        <div style="display: flex; gap: 10px;">
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                             <button class="btn btn-outline" onclick="loadRekapData()">
                                 <i class="fas fa-sync-alt"></i> Refresh
+                            </button>
+                            <button class="btn btn-outline" onclick="unduhLaporanCSV()">
+                                <i class="fas fa-file-csv"></i> Unduh CSV
                             </button>
                             <button class="btn btn-primary" onclick="unduhLaporanPDF()">
                                 <i class="fas fa-file-pdf"></i> Unduh PDF
@@ -254,19 +243,11 @@
                             </select>
                         </div>
 
-                        <!-- Filter Ustadz / Pengawas -->
+                        <!-- Filter Ustadz / Guru Ngaji -->
                         <div class="filter-item">
-                            <label><i class="fas fa-user-tie"></i> Ustadz / Pengawas</label>
+                            <label><i class="fas fa-user-tie"></i> Ustadz / Guru Ngaji</label>
                             <select id="filterPengawasRekap" onchange="applyRekapFilter()">
-                                <option value="ALL">Semua Ustadz / Pengawas</option>
-                            </select>
-                        </div>
-
-                        <!-- Filter Tempat Ngaji -->
-                        <div class="filter-item">
-                            <label><i class="fas fa-mosque"></i> Tempat Ngaji</label>
-                            <select id="filterTempatRekap" onchange="applyRekapFilter()">
-                                <option value="ALL">Semua Tempat Ngaji</option>
+                                <option value="ALL">Semua Guru Ngaji</option>
                             </select>
                         </div>
 
@@ -282,8 +263,7 @@
                     <!-- Ringkasan Kop Laporan Aktif -->
                     <div id="rekapMetaInfo" class="rekap-meta-card">
                         <div class="meta-item"><span class="meta-label">Kelas:</span> <strong id="metaKelas">Semua Kelas</strong></div>
-                        <div class="meta-item"><span class="meta-label">Ustadz/Pengawas:</span> <strong id="metaPengawas">Semua Ustadz</strong></div>
-                        <div class="meta-item"><span class="meta-label">Tempat Ngaji:</span> <strong id="metaTempat">Semua Tempat</strong></div>
+                        <div class="meta-item"><span class="meta-label">Guru Ngaji:</span> <strong id="metaPengawas">Semua Guru Ngaji</strong></div>
                         <div class="meta-item"><span class="meta-label">Periode:</span> <strong id="metaPeriode">-</strong></div>
                     </div>
 
@@ -296,14 +276,13 @@
                                     <th>Waktu</th>
                                     <th>Siswa</th>
                                     <th>Kelas</th>
-                                    <th>Tempat Ngaji</th>
                                     <th>Kegiatan</th>
-                                    <th>Pengawas</th>
+                                    <th>Guru Ngaji</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td colspan="7" style="text-align: center;">Memuat data...</td>
+                                    <td colspan="6" style="text-align: center;">Memuat data...</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -339,7 +318,7 @@
 
                 <div class="glass-card">
                     <div class="flex-between">
-                        <h3><i class="fas fa-user-shield text-neon"></i> Manajemen Akun Ustadz & Admin</h3>
+                        <h3><i class="fas fa-user-shield text-neon"></i> Manajemen Akun Guru Ngaji & Admin</h3>
                         <button class="btn btn-outline"
                             onclick="document.getElementById('formAkunBaru').classList.toggle('hidden')"><i
                                 class="fas fa-plus"></i> Tambah Akun</button>
@@ -359,7 +338,7 @@
                             <div style="flex:1; min-width: 200px;">
                                 <label>Hak Akses (Role)</label>
                                 <select id="akRole">
-                                    <option value="Pengawas">Pengawas / Ustadz (Scan & Laporan)</option>
+                                    <option value="Guru Ngaji">Guru Ngaji (Scan & Laporan)</option>
                                     <option value="Admin">Admin (Akses Penuh)</option>
                                 </select>
                             </div>
