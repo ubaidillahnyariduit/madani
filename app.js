@@ -189,6 +189,58 @@ function initApp() {
     document.getElementById('menuTabs').innerHTML = htmlMenu;
     switchTab('viewScan', document.getElementById('menuTabs').firstElementChild);
     loadFilterOptions();
+    updateDashboardStats();
+    // Pre-load data santri dan rekap untuk mengisi metrik dashboard
+    if (dataSiswaCache.length === 0) loadDataSiswa();
+    if (rekapCache.length === 0) loadRekapData();
+}
+
+// -------------------------------------------------------------
+// DASHBOARD QUICK STATS
+// -------------------------------------------------------------
+function updateDashboardStats() {
+    // 1. Total Santri
+    const elTotal = document.getElementById('statTotalSantri');
+    if (elTotal) elTotal.innerText = dataSiswaCache.length;
+
+    // 2. Presensi Hari Ini (Unique ID Santri yang hadir pada hari ini)
+    const elHadir = document.getElementById('statHadirHariIni');
+    if (elHadir) {
+        const now = new Date();
+        const tzOffset = now.getTimezoneOffset() * 60000;
+        const todayParts = (new Date(now - tzOffset)).toISOString().slice(0, 10).split('-');
+        const todayStr = todayParts[2] + '/' + todayParts[1] + '/' + todayParts[0];
+
+        const hadirSet = new Set();
+        rekapCache.forEach(r => {
+            if (r.tanggal === todayStr && r.id_siswa) {
+                hadirSet.add(r.id_siswa);
+            }
+        });
+        elHadir.innerText = hadirSet.size;
+    }
+
+    // 3. Sesi Kegiatan Aktif
+    syncKegiatanStat();
+
+    // 4. Guru Ngaji
+    const elGuru = document.getElementById('statGuruNgaji');
+    if (elGuru && currentUser) {
+        elGuru.innerText = currentUser.nama;
+    }
+}
+
+function syncKegiatanStat() {
+    const elKeg = document.getElementById('statKegiatanAktif');
+    const selectKeg = document.getElementById('kegiatanSelect');
+    const customKeg = document.getElementById('kegiatanCustom');
+    if (!elKeg || !selectKeg) return;
+
+    if (selectKeg.value === 'CUSTOM') {
+        elKeg.innerText = customKeg && customKeg.value.trim() ? customKeg.value.trim() : 'Kegiatan Khusus';
+    } else {
+        elKeg.innerText = selectKeg.value;
+    }
 }
 
 // -------------------------------------------------------------
@@ -224,6 +276,11 @@ function populateDropdowns() {
     populateSelect('filterKelasRekap', filterOptionsCache.kelas, 'Semua Kelas');
     populateSelect('filterKelasKartu', filterOptionsCache.kelas, 'Semua Kelas');
     populateSelect('filterPengawasRekap', filterOptionsCache.pengawas, 'Semua Guru Ngaji');
+
+    // Populasikan daftar kegiatan lengkap (Default + dari server)
+    const defaultKegiatan = ['Subuh Berjama\'ah', 'Dzuhur Berjama\'ah', 'Maghrib Mengaji', 'Mengaji Sore'];
+    const mergedKegiatan = Array.from(new Set([...defaultKegiatan, ...(filterOptionsCache.kegiatan || [])]));
+    populateSelect('filterKegiatanRekap', mergedKegiatan, 'Semua Kegiatan');
 }
 
 // -------------------------------------------------------------
@@ -326,10 +383,11 @@ function appendLiveScanTable(data) {
     document.getElementById('liveCounter').innerText = localScanCount;
     const tbody = document.querySelector('#tableLiveScan tbody');
     const tr = document.createElement('tr');
-    tr.style.background = 'rgba(5, 150, 105, 0.08)';
-    tr.innerHTML = `<td>${data.waktu}</td><td><strong>${data.nama}</strong></td><td><span class="user-profile" style="font-size:0.75rem;">${data.kelas}</span></td>`;
+    tr.style.background = 'rgba(37, 99, 235, 0.08)';
+    tr.innerHTML = `<td><span class="badge-time">${data.waktu}</span></td><td><strong>${data.nama}</strong></td><td><span class="user-profile" style="font-size:0.75rem;">${data.kelas}</span></td>`;
     tbody.insertBefore(tr, tbody.firstChild);
     setTimeout(() => { tr.style.background = 'transparent'; }, 2500);
+    updateDashboardStats();
 }
 
 // -------------------------------------------------------------
@@ -348,6 +406,7 @@ async function loadDataSiswa() {
             dataSiswaCache = res.data;
             renderTabelSiswa(dataSiswaCache);
             loadFilterOptions();
+            updateDashboardStats();
         }
     } catch (e) {
         tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--danger);">Gagal memuat data santri.</td></tr>';
@@ -446,7 +505,7 @@ function generateCardsDOM() {
     const filteredData = filterKelas === 'ALL' ? dataSiswaCache : dataSiswaCache.filter(s => s.kelas === filterKelas);
 
     if (filteredData.length === 0) {
-        area.innerHTML = '<p class="text-muted">Tidak ada data santri untuk dicetak.</p>';
+        area.innerHTML = '<p class="text-muted" style="grid-column: 1/-1; text-align: center; padding: 30px;">Tidak ada data santri untuk dicetak.</p>';
         return;
     }
 
@@ -457,20 +516,31 @@ function generateCardsDOM() {
         card.className = 'qr-id-card';
 
         card.innerHTML = `
-            <img src="${logoToUse}" class="card-logo" alt="Logo">
-            <strong style="font-size:0.75rem; color:#444; border-bottom: 1px solid #ccc; padding-bottom: 4px; margin-bottom: 4px; width: 100%; display:block;">KARTU PRESENSI SANTRI</strong>
-            <canvas id="qr-${item.id}"></canvas>
-            <h4>${item.nama}</h4>
-            <p>Kelas: ${item.kelas}<br>ID: ${item.id}</p>
+            <div class="id-card-header">
+                <img src="${logoToUse}" class="card-logo" alt="Logo">
+                <div class="id-card-title">${appSettings.appName}</div>
+                <div class="id-card-subtitle">KARTU TANDA SANTRI</div>
+            </div>
+            <div class="id-card-body">
+                <div class="qr-box-frame">
+                    <canvas id="qr-${item.id}"></canvas>
+                </div>
+                <h4 class="id-card-name">${item.nama}</h4>
+                <div class="id-card-class-pill">Kelas: ${item.kelas}</div>
+                <div class="id-card-id-code">ID: ${item.id}</div>
+            </div>
+            <div class="id-card-footer">
+                <span>Presensi Digital Santri</span>
+            </div>
         `;
         area.appendChild(card);
 
         new QRious({
             element: document.getElementById(`qr-${item.id}`),
             value: item.qr_payload,
-            size: 130,
+            size: 110,
             backgroundAlpha: 0,
-            foreground: 'black',
+            foreground: '#0f172a',
             level: 'H'
         });
     });
@@ -530,6 +600,7 @@ async function loadRekapData() {
         if (resRekap.success) {
             rekapCache = resRekap.data;
             applyRekapFilter();
+            updateDashboardStats();
         } else {
             tbodyHarian.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--danger);">Gagal mengambil data rekap.</td></tr>';
         }
